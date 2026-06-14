@@ -1,0 +1,7 @@
+{
+  "name": "init-existing-fixture",
+  "version": "0.0.0",
+  "devDependencies": {
+    "prettier": "*"
+  }
+}

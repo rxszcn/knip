@@ -13,12 +13,13 @@ import {
   isModuleNotFoundError,
 } from './util/errors.ts';
 import { logError } from './util/log.ts';
+import { initConfig } from './util/init.ts';
 import { perfObserver } from './util/Performance.ts';
 import { runPreprocessors, runReporters } from './util/reporter.ts';
 import { prettyMilliseconds } from './util/string.ts';
 import { version } from './version.ts';
 
-let args: ReturnType<typeof parseArgs> = {};
+let args: ReturnType<typeof parseArgs> = { _: [] };
 try {
   args = parseArgs();
 } catch (error: unknown) {
@@ -39,6 +40,11 @@ const main = async () => {
 
     if (args.version) {
       console.log(version);
+      process.exit(0);
+    }
+
+    if (args._?.[0] === 'init') {
+      await initConfig(args);
       process.exit(0);
     }
 

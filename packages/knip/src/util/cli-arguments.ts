@@ -3,9 +3,14 @@ import { parseArgs } from 'node:util';
 export const helpText = `✂️  Find unused dependencies, exports and files in your JavaScript and TypeScript projects
 
 Usage: knip [options]
+       knip init [options]
+
+Commands:
+  init                         Generate a knip.json based on the dependencies and plugins detected in the current directory
 
 Options:
   -h, --help                   Print this help text
+      --force                  Overwrite an existing configuration file (used with \`knip init\`)
   -V, --version                Print version
   -n, --no-progress            Don't show dynamic progress updates (automatically enabled in CI environments)
   -c, --config [file]          Configuration file path
@@ -70,6 +75,7 @@ Troubleshooting
 Examples:
 
 $ knip
+$ knip init
 $ knip --production
 $ knip --workspace packages/client --include files,dependencies
 $ knip --workspace @myorg/* --workspace '!@myorg/legacy'
@@ -83,7 +89,8 @@ Website: https://knip.dev`;
 export type ParsedCLIArgs = ReturnType<typeof parseCLIArgs>;
 
 export default function parseCLIArgs() {
-  return parseArgs({
+  const { values, positionals } = parseArgs({
+    allowPositionals: true,
     options: {
       cache: { type: 'boolean' },
       'cache-location': { type: 'string' },
@@ -97,6 +104,7 @@ export default function parseCLIArgs() {
       files: { type: 'boolean' },
       fix: { type: 'boolean', short: 'f' },
       'fix-type': { type: 'string', multiple: true },
+      force: { type: 'boolean' },
       format: { type: 'boolean', short: 'F' },
       'allow-remove-files': { type: 'boolean' },
       help: { type: 'boolean', short: 'h' },
@@ -132,5 +140,7 @@ export default function parseCLIArgs() {
       watch: { type: 'boolean', short: 'w' },
       workspace: { type: 'string', short: 'W', multiple: true },
     },
-  }).values;
+  });
+
+  return { ...values, _: positionals } as typeof values & { _?: string[] };
 }

@@ -1,0 +1,8 @@
+{
+  "name": "init-fixture",
+  "version": "0.0.0",
+  "devDependencies": {
+    "prettier": "*",
+    "vitest": "*"
+  }
+}
