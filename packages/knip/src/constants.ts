@@ -26,6 +26,10 @@ export const INTERNAL_TAG = '@internal';
 export const BETA_TAG = '@beta';
 export const ALIAS_TAG = '@alias';
 
+/** Synthetic tag injected when a `// knip-ignore-next` line comment precedes an export statement. */
+export const KNIP_IGNORE_TAG = '@knip-ignore';
+export const LINE_IGNORE_COMMENT = 'knip-ignore-next';
+
 export const DT_SCOPE = '@types';
 
 export const PROTOCOL_VIRTUAL = 'virtual:';

@@ -1,6 +1,6 @@
 import { isBuiltin } from 'node:module';
 import type { ParseResult, Visitor } from 'oxc-parser';
-import { IMPORT_FLAGS, IMPORT_STAR, OPAQUE, PROTOCOL_VIRTUAL, SIDE_EFFECTS } from '../constants.ts';
+import { IMPORT_FLAGS, IMPORT_STAR, KNIP_IGNORE_TAG, LINE_IGNORE_COMMENT, OPAQUE, PROTOCOL_VIRTUAL, SIDE_EFFECTS } from '../constants.ts';
 import type { GetImportsAndExportsOptions, IgnoreExportsUsedInFile, PluginVisitorContext } from '../types/config.ts';
 import type { IssueSymbol, SymbolType } from '../types/issues.ts';
 import type { Export, FileNode, ImportMap, ImportMaps, Imports } from '../types/module-graph.ts';
@@ -18,7 +18,7 @@ import {
   type ResolveModule,
   type ResolvedModule,
 } from './ast-nodes.ts';
-import { buildJSDocTagLookup } from './visitors/jsdoc.ts';
+import { buildJSDocTagLookup, EMPTY_TAGS } from './visitors/jsdoc.ts';
 import { _walkAST } from './visitors/walk.ts';
 
 interface AddInternalImportOptions {
@@ -218,7 +218,29 @@ const getImportsAndExports = (
 
   const result = cachedParseResult ?? _parseFile(filePath, sourceText);
   const lineStarts = buildLineStarts(sourceText);
-  const getJSDocTags = buildJSDocTagLookup(result.comments, sourceText);
+  const _getJSDocTags = buildJSDocTagLookup(result.comments, sourceText);
+
+  // Build set of line numbers (1-indexed) that have a `// knip-ignore-next` comment on the preceding line.
+  // Exports whose statement starts on an ignored line get a synthetic `@knip-ignore` tag injected.
+  const ignoredLines = new Set<number>();
+  for (const comment of result.comments) {
+    if (comment.type !== 'Line' && comment.type !== 'Block') continue;
+    if (comment.value.trim().startsWith(LINE_IGNORE_COMMENT)) {
+      const { line } = getLineAndCol(lineStarts, comment.start);
+      ignoredLines.add(line + 1);
+    }
+  }
+
+  const getJSDocTags = (nodeStart: number): Set<string> => {
+    const tags = _getJSDocTags(nodeStart);
+    if (ignoredLines.size === 0) return tags;
+    const { line } = getLineAndCol(lineStarts, nodeStart);
+    if (!ignoredLines.has(line)) return tags;
+    if (tags === EMPTY_TAGS) return new Set([KNIP_IGNORE_TAG]);
+    const augmented = new Set(tags);
+    augmented.add(KNIP_IGNORE_TAG);
+    return augmented;
+  };
 
   let hasNodeModuleImport = false;
   let hasWorkerThreadsImport = false;

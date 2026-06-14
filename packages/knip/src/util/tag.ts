@@ -1,4 +1,4 @@
-import { ALIAS_TAG, BETA_TAG, INTERNAL_TAG, PUBLIC_TAG } from '../constants.ts';
+import { ALIAS_TAG, BETA_TAG, INTERNAL_TAG, KNIP_IGNORE_TAG, PUBLIC_TAG } from '../constants.ts';
 import type { Tags } from '../types/options.ts';
 
 export const splitTags = (rawTags: string[]) => {
@@ -23,7 +23,7 @@ export const shouldIgnore = (jsDocTags: Set<string>, tags: Tags) => {
 };
 
 export const isAlwaysIgnored = (jsDocTags: Set<string>) =>
-  jsDocTags.has(PUBLIC_TAG) || jsDocTags.has(BETA_TAG) || jsDocTags.has(ALIAS_TAG);
+  jsDocTags.has(PUBLIC_TAG) || jsDocTags.has(BETA_TAG) || jsDocTags.has(ALIAS_TAG) || jsDocTags.has(KNIP_IGNORE_TAG);
 
 export const getShouldIgnoreHandler = (isProduction: boolean) => (jsDocTags: Set<string>) =>
   isAlwaysIgnored(jsDocTags) || (isProduction && jsDocTags.has(INTERNAL_TAG));
