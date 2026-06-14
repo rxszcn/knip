@@ -1,0 +1,6 @@
+{
+  "name": "@fixtures/knip-ignore-next",
+  "scripts": {
+    "test": "node --test"
+  }
+}

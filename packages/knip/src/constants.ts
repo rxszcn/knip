@@ -26,6 +26,11 @@ export const INTERNAL_TAG = '@internal';
 export const BETA_TAG = '@beta';
 export const ALIAS_TAG = '@alias';
 
+/** Text of the inline directive (`// knip-ignore-next`) that suppresses the export on the next line. */
+export const KNIP_IGNORE_DIRECTIVE = 'knip-ignore-next';
+/** Synthetic tag attached to an export preceded by a `// knip-ignore-next` directive. */
+export const KNIP_IGNORE_TAG = '@knip-ignore-next';
+
 export const DT_SCOPE = '@types';
 
 export const PROTOCOL_VIRTUAL = 'virtual:';
