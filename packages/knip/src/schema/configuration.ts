@@ -28,6 +28,7 @@ const issueTypeSchema = z.union([
   z.literal('enumMembers'),
   z.literal('namespaceMembers'),
   z.literal('catalog'),
+  z.literal('deprecated'),
 ]);
 
 const rulesSchema = z.partialRecord(issueTypeSchema, z.enum(['error', 'warn', 'off']));

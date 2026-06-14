@@ -28,7 +28,7 @@ test('Resolve included issue types (default)', async () => {
 });
 
 test('Resolve included issue types (all)', async () => {
-  const config = getIncludedIssueTypes({ ...base, includeOverrides: ['nsExports', 'nsTypes'] });
+  const config = getIncludedIssueTypes({ ...base, includeOverrides: ['nsExports', 'nsTypes', 'deprecated'] });
   assert.deepEqual(config, { ...all });
 });
 
@@ -114,6 +114,7 @@ test('Resolve included issue types (all)', async () => {
     includeOverrides: [
       'nsExports',
       'nsTypes',
+      'deprecated',
       'dependencies',
       'optionalPeerDependencies',
       'unlisted',

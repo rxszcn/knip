@@ -45,6 +45,7 @@ export type Issues = {
   enumMembers: IssueRecords;
   namespaceMembers: IssueRecords;
   catalog: IssueRecords;
+  deprecated: IssueRecords;
 };
 
 export type IssueType = keyof Issues;

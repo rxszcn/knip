@@ -12,6 +12,7 @@ Options:
                                (default: [.]knip.json[c], knip.(js|ts), knip.config.(js|ts) or package.json#knip)
       --use-tsconfig-files     Use tsconfig.json to define project files (override \`project\` patterns)
   -t, --tsConfig [file]        TypeScript configuration path (default: tsconfig.json)
+      --check-deprecated       Check for deprecated dependencies on the npm registry
 
 Mode
       --cache                  Enable caching
@@ -63,7 +64,7 @@ Troubleshooting
       --trace-export [name]    Show trace output for named export(s)
       --trace-file [file]      Show trace output for exports in file
 
-(1) Issue types: files, dependencies, unlisted, unresolved, exports, nsExports, types, nsTypes, enumMembers, namespaceMembers, duplicates, catalog
+(1) Issue types: files, dependencies, unlisted, unresolved, exports, nsExports, types, nsTypes, enumMembers, namespaceMembers, duplicates, catalog, deprecated
 (2) Fixable issue types: dependencies, exports, types, files, catalog
 (3) Built-in reporters: symbols (default), compact, codeowners, json, codeclimate, markdown, disclosure, github-actions
 
@@ -87,6 +88,7 @@ export default function parseCLIArgs() {
     options: {
       cache: { type: 'boolean' },
       'cache-location': { type: 'string' },
+      'check-deprecated': { type: 'boolean' },
       config: { type: 'string', short: 'c' },
       debug: { type: 'boolean', short: 'd' },
       dependencies: { type: 'boolean' },

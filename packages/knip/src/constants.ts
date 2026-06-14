@@ -203,6 +203,7 @@ export const ISSUE_TYPES = [
   'namespaceMembers',
   'duplicates',
   'catalog',
+  'deprecated',
 ] as const;
 
 export const ISSUE_TYPE_TITLE = {
@@ -221,6 +222,7 @@ export const ISSUE_TYPE_TITLE = {
   namespaceMembers: 'Unused exported namespace members',
   duplicates: 'Duplicate exports',
   catalog: 'Unused catalog entries',
+  deprecated: 'Deprecated dependencies',
 } as const;
 
 export const SYMBOL_TYPE = {

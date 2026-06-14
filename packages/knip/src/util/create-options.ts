@@ -111,6 +111,7 @@ export const createOptions = async (options: CreateOptions) => {
       ...(args.dependencies ? shorthandDeps : []),
       ...(args.exports ? shorthandExports : []),
       ...(args.files ? shorthandFiles : []),
+      ...(args['check-deprecated'] ? ['deprecated'] : []),
     ],
   });
 
@@ -163,6 +164,7 @@ export const createOptions = async (options: CreateOptions) => {
       includedIssueTypes.namespaceMembers ||
       includedIssueTypes.duplicates,
     isReportFiles: includedIssueTypes.files,
+    isReportDeprecated: includedIssueTypes.deprecated,
     isReportTypes:
       includedIssueTypes.types ||
       includedIssueTypes.nsTypes ||

@@ -9,6 +9,7 @@ import traceReporter from '../reporters/trace.ts';
 import type { IgnoreExportsUsedInFile } from '../types/config.ts';
 import type { Export, ModuleGraph } from '../types/module-graph.ts';
 import { shouldCountRefs } from '../typescript/ast-nodes.ts';
+import { checkDeprecatedDependencies } from '../util/check-deprecated.ts';
 import type { MainOptions } from '../util/create-options.ts';
 import { getPackageNameFromModuleSpecifier } from '../util/modules.ts';
 import { perfObserver } from '../util/Performance.ts';
@@ -300,6 +301,11 @@ export const analyze = async ({
 
     const catalogIssues = await counselor.settleCatalogIssues(options);
     for (const issue of catalogIssues) collector.addIssue(issue);
+
+    if (options.isReportDeprecated) {
+      streamer.cast('Checking for deprecated dependencies');
+      await checkDeprecatedDependencies(deputy, collector);
+    }
 
     const unusedIgnoredWorkspaces = chief.getUnusedIgnoredWorkspaces();
     for (const identifier of unusedIgnoredWorkspaces) {
