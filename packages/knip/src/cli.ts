@@ -13,6 +13,7 @@ import {
   isModuleNotFoundError,
 } from './util/errors.ts';
 import { logError } from './util/log.ts';
+import { outputWorkspaceGraph } from './util/mermaid.ts';
 import { perfObserver } from './util/Performance.ts';
 import { runPreprocessors, runReporters } from './util/reporter.ts';
 import { prettyMilliseconds } from './util/string.ts';
@@ -54,7 +55,16 @@ const main = async () => {
       includedWorkspaceDirs,
       enabledPlugins,
       selectedWorkspaces,
+      typedWorkspaceGraph,
+      workspacePackages,
     } = results;
+
+    if (options.isWorkspaceGraph) {
+      const wsPkgNames = new Map<string, string | undefined>();
+      for (const pkg of workspacePackages.values()) wsPkgNames.set(pkg.dir, pkg.pkgName);
+      outputWorkspaceGraph(typedWorkspaceGraph, options.cwd, wsPkgNames);
+      return;
+    }
 
     // These modes have their own reporting mechanism
     if (options.isWatch || options.isTrace) return;

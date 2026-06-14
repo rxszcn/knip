@@ -15,7 +15,7 @@ import { type PluginName, pluginNames } from './types/PluginNames.ts';
 import type { WorkspacePackage } from './types/package-json.ts';
 import { arrayify, compact, partition } from './util/array.ts';
 import type { MainOptions } from './util/create-options.ts';
-import { createWorkspaceGraph, type WorkspaceGraph } from './util/create-workspace-graph.ts';
+import { createWorkspaceGraph, createTypedWorkspaceGraph, type WorkspaceGraph, type TypedWorkspaceGraph } from './util/create-workspace-graph.ts';
 import { isDirectory, isFile } from './util/fs.ts';
 import { _dirGlob, removeProductionSuffix } from './util/glob.ts';
 import { graphSequencer } from './util/graph-sequencer.ts';
@@ -103,6 +103,7 @@ export class ConfigurationChief {
   availableWorkspaceDirs: string[] = [];
   private availableWorkspaceDirsWithSlash: string[] = [];
   workspaceGraph: WorkspaceGraph = new Map();
+  typedWorkspaceGraph: TypedWorkspaceGraph = new Map();
   private workspaceByFileCache = new Map<string, Workspace | undefined>();
 
   constructor(options: MainOptions) {
@@ -194,6 +195,7 @@ export class ConfigurationChief {
     this.availableWorkspaceDirsWithSlash = this.availableWorkspaceDirs.map(dir => `${dir}/`);
 
     this.workspaceGraph = createWorkspaceGraph(this.cwd, this.availableWorkspaceNames, wsPkgNames, packages);
+    this.typedWorkspaceGraph = createTypedWorkspaceGraph(this.cwd, this.availableWorkspaceNames, wsPkgNames, packages);
 
     this.selectedWorkspaces = this.getSelectedWorkspaces();
 

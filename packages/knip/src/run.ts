@@ -122,6 +122,8 @@ export const run = async (options: MainOptions) => {
       selectedWorkspaces: chief.selectedWorkspaces ? Array.from(chief.selectedWorkspaces) : undefined,
       includedWorkspaceDirs: Array.from(chief.workspacesByDir.keys()),
       enabledPlugins: Object.fromEntries(enabledPluginsStore),
+      typedWorkspaceGraph: chief.typedWorkspaceGraph,
+      workspacePackages: chief.workspacePackages,
     },
     session,
     streamer,

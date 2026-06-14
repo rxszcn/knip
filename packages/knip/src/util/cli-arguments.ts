@@ -58,6 +58,7 @@ Troubleshooting
       --performance            Measure count and running time of key functions and display stats table
       --performance-fn [name]  Measure only function [name]
   -u, --duration               Print total running time (zero overhead, no instrumentation)
+      --workspace-graph          Output a Mermaid dependency graph of workspace packages
       --trace                  Show trace output
       --trace-dependency [name]  Show files that import the named dependency
       --trace-export [name]    Show trace output for named export(s)
@@ -130,6 +131,7 @@ export default function parseCLIArgs() {
       'use-tsconfig-files': { type: 'boolean' },
       version: { type: 'boolean', short: 'V' },
       watch: { type: 'boolean', short: 'w' },
+      'workspace-graph': { type: 'boolean' },
       workspace: { type: 'string', short: 'W', multiple: true },
     },
   }).values;
