@@ -169,6 +169,7 @@ export const createOptions = async (options: CreateOptions) => {
       includedIssueTypes.enumMembers ||
       includedIssueTypes.namespaceMembers,
     isReportValues: includedIssueTypes.exports || includedIssueTypes.nsExports,
+    isReportIntensity: args['report-intensity'] ?? options.isReportIntensity ?? false,
     isSession: options.isSession ?? false,
     isShowProgress:
       !isDebug &&

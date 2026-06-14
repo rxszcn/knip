@@ -43,6 +43,7 @@ Output
       --preprocessor-options   Pass extra options to the preprocessor (as JSON string, see --reporter-options example)
       --reporter               Select reporter (default: symbols), can be repeated (3)
       --reporter-options       Pass extra options to the reporter (as JSON string, see example)
+      --report-intensity       Report per-dependency usage intensity and flag low-intensity dependencies
       --no-config-hints        Suppress configuration hints
       --no-tag-hints           Suppress tag hints
       --treat-config-hints-as-errors   Exit with non-zero code (1) if there are any configuration hints
@@ -118,6 +119,7 @@ export default function parseCLIArgs() {
       'preprocessor-options': { type: 'string' },
       reporter: { type: 'string', multiple: true },
       'reporter-options': { type: 'string' },
+      'report-intensity': { type: 'boolean' },
       duration: { type: 'boolean', short: 'u' },
       strict: { type: 'boolean', short: 's' },
       trace: { type: 'boolean' },

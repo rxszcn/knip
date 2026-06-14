@@ -119,6 +119,7 @@ export const run = async (options: MainOptions) => {
       counters,
       tagHints,
       configurationHints,
+      intensityReport: deputy.intensityReport,
       selectedWorkspaces: chief.selectedWorkspaces ? Array.from(chief.selectedWorkspaces) : undefined,
       includedWorkspaceDirs: Array.from(chief.workspacesByDir.keys()),
       enabledPlugins: Object.fromEntries(enabledPluginsStore),

@@ -242,6 +242,8 @@ export const analyze = async ({
         if (file.imports?.external) {
           for (const extImport of file.imports.external) {
             const packageName = getPackageNameFromModuleSpecifier(extImport.specifier);
+            if (options.isReportIntensity && packageName)
+              deputy.addDependencyUsage(packageName, filePath, extImport.identifier);
             const isHandled =
               packageName &&
               deputy.maybeAddReferencedExternalDependency(ws, packageName, undefined, extImport.isTypeOnly);
@@ -257,6 +259,13 @@ export const analyze = async ({
                 col: extImport.col,
                 fixes: [],
               });
+          }
+        }
+
+        if (options.isReportIntensity && file.imports?.externalRefs) {
+          for (const ref of file.imports.externalRefs) {
+            const packageName = getPackageNameFromModuleSpecifier(ref.specifier);
+            if (packageName) deputy.addDependencyUsage(packageName, filePath, ref.identifier);
           }
         }
 
@@ -314,6 +323,8 @@ export const analyze = async ({
   };
 
   await analyzeGraph();
+
+  if (options.isReportIntensity) deputy.computeIntensityReport(analyzedFiles.size);
 
   perfObserver.addMemoryMark('analyze');
 

@@ -121,3 +121,17 @@ export type TagHint = {
   identifier: string;
   tagName: string;
 };
+
+/** Per-dependency usage intensity, produced when `--report-intensity` is enabled. */
+export type DependencyIntensity = {
+  /** Package name of the (declared) dependency */
+  name: string;
+  /** Number of source files that import the dependency */
+  fileCount: number;
+  /** Number of distinct named exports of the dependency that are imported */
+  namedExportCount: number;
+  /** `fileCount` as a fraction of all analyzed source files */
+  fileRatio: number;
+  /** `true` when the dependency is referenced by few files and few named exports, hinting it may be replaceable */
+  isLowIntensity: boolean;
+};

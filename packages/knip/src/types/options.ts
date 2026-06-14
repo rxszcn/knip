@@ -16,6 +16,7 @@ export interface Options {
 
   isProduction: boolean;
   isRemoveFiles: boolean;
+  isReportIntensity: boolean;
   isSession: boolean;
   isShowProgress: boolean;
   isStrict: boolean;

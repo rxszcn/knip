@@ -6,11 +6,13 @@ import {
   IGNORED_DEPENDENCIES,
   IGNORED_GLOBAL_BINARIES,
   IGNORED_RUNTIME_DEPENDENCIES,
+  IMPORT_STAR,
   ROOT_WORKSPACE_NAME,
+  SIDE_EFFECTS,
 } from './constants.ts';
 import { getDependencyMetaData } from './manifest/index.ts';
 import { PackagePeeker } from './PackagePeeker.ts';
-import type { ConfigurationHint, Counters, Issue, Issues, IssueType } from './types/issues.ts';
+import type { ConfigurationHint, Counters, DependencyIntensity, Issue, Issues, IssueType } from './types/issues.ts';
 import type { PackageJson } from './types/package-json.ts';
 import type {
   DependencyArray,
@@ -31,6 +33,11 @@ import { findMatch, toRegexOrString } from './util/regex.ts';
 const filterIsProduction = (id: string | RegExp, isProduction: boolean): string | RegExp | never[] =>
   typeof id === 'string' ? (isProduction || !id.endsWith('!') ? id.replace(/!$/, '') : []) : id;
 
+/** A dependency is "low intensity" when referenced by fewer than this fraction of all source files. */
+const LOW_INTENSITY_FILE_RATIO = 0.05;
+/** ...and fewer than this many distinct named exports are imported from it. */
+const LOW_INTENSITY_NAMED_EXPORTS = 3;
+
 /**
  * - Stores manifests
  * - Stores referenced external dependencies
@@ -42,6 +49,7 @@ export class DependencyDeputy {
   isProduction;
   isStrict;
   isReportDependencies;
+  isReportIntensity;
   _manifests: WorkspaceManifests = new Map();
   workspacePkgNames: Set<string> = new Set();
   referencedDependencies: Map<string, Set<string>>;
@@ -49,11 +57,16 @@ export class DependencyDeputy {
   hostDependencies: Map<string, HostDependencies>;
   installedBinaries: Map<string, InstalledBinaries>;
   hasTypesIncluded: Map<string, Set<string>>;
+  /** Per-dependency usage, populated during analysis when `isReportIntensity` is set */
+  dependencyUsage: Map<string, { files: Set<string>; namedExports: Set<string> }> = new Map();
+  /** Computed usage intensity report, available after `computeIntensityReport` */
+  intensityReport: DependencyIntensity[] | undefined = undefined;
 
-  constructor({ isProduction, isStrict, isReportDependencies }: MainOptions) {
+  constructor({ isProduction, isStrict, isReportDependencies, isReportIntensity }: MainOptions) {
     this.isProduction = isProduction;
     this.isStrict = isStrict;
     this.isReportDependencies = isReportDependencies;
+    this.isReportIntensity = isReportIntensity;
     this.referencedDependencies = new Map();
     this.referencedBinaries = new Map();
     this.hostDependencies = new Map();
@@ -175,6 +188,52 @@ export class DependencyDeputy {
       this.referencedBinaries.set(workspaceName, new Set());
     }
     this.referencedBinaries.get(workspaceName)?.add(binaryName);
+  }
+
+  /**
+   * Record that `filePath` imports `packageName` (optionally a specific named export `identifier`).
+   * No-op unless `isReportIntensity` is enabled. Side-effect and namespace imports don't count towards named exports.
+   */
+  addDependencyUsage(packageName: string, filePath: string, identifier: string | undefined) {
+    if (!this.isReportIntensity) return;
+    let usage = this.dependencyUsage.get(packageName);
+    if (!usage) {
+      usage = { files: new Set(), namedExports: new Set() };
+      this.dependencyUsage.set(packageName, usage);
+    }
+    usage.files.add(filePath);
+    if (identifier && identifier !== SIDE_EFFECTS && identifier !== IMPORT_STAR) usage.namedExports.add(identifier);
+  }
+
+  /** Union of all declared dependencies (and devDependencies, unless in production mode) across workspaces. */
+  private getDeclaredDependencies(): Set<string> {
+    const declared = new Set<string>();
+    for (const manifest of this._manifests.values()) {
+      for (const dependency of manifest.dependencies) declared.add(dependency);
+      if (!this.isProduction) for (const dependency of manifest.devDependencies) declared.add(dependency);
+    }
+    return declared;
+  }
+
+  /**
+   * Build the usage intensity report from recorded usage, limited to declared dependencies that are actually imported.
+   * `totalFileCount` is the number of analyzed source files, used as the denominator for the reference ratio.
+   */
+  public computeIntensityReport(totalFileCount: number): DependencyIntensity[] {
+    const declared = this.getDeclaredDependencies();
+    const report: DependencyIntensity[] = [];
+    for (const [name, usage] of this.dependencyUsage) {
+      if (!declared.has(name)) continue;
+      const fileCount = usage.files.size;
+      const namedExportCount = usage.namedExports.size;
+      const fileRatio = totalFileCount > 0 ? fileCount / totalFileCount : 0;
+      const isLowIntensity =
+        fileRatio < LOW_INTENSITY_FILE_RATIO && namedExportCount < LOW_INTENSITY_NAMED_EXPORTS;
+      report.push({ name, fileCount, namedExportCount, fileRatio, isLowIntensity });
+    }
+    report.sort((a, b) => a.fileRatio - b.fileRatio || a.name.localeCompare(b.name));
+    this.intensityReport = report;
+    return report;
   }
 
   setHostDependencies(workspaceName: string, hostDependencies: HostDependencies) {

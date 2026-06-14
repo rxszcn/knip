@@ -1,5 +1,6 @@
 /* oxlint-disable no-console */
 import { fix } from './IssueFixer.ts';
+import intensityReporter from './reporters/intensity.ts';
 import { run } from './run.ts';
 import type { IssueType, ReporterOptions } from './types/issues.ts';
 import parseArgs, { helpText } from './util/cli-arguments.ts';
@@ -86,6 +87,8 @@ const main = async () => {
     if (options.isFix) await fix(finalData.issues, finalData.counters, options);
 
     await runReporters(args.reporter ?? ['symbols'], finalData);
+
+    if (options.isReportIntensity) intensityReporter({ report: results.intensityReport, options });
 
     const totalErrorCount = (Object.keys(finalData.report) as IssueType[])
       .filter(reportGroup => finalData.report[reportGroup] && options.rules[reportGroup] === 'error')

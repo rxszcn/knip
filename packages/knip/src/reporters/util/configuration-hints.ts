@@ -171,7 +171,16 @@ export const printConfigurationHints = ({
   configFilePath,
 }: ReporterOptions) => {
   const rows = finalizeConfigurationHints(
-    { issues, counters, configurationHints, tagHints, includedWorkspaceDirs, selectedWorkspaces, enabledPlugins },
+    {
+      issues,
+      counters,
+      configurationHints,
+      tagHints,
+      includedWorkspaceDirs,
+      selectedWorkspaces,
+      enabledPlugins,
+      intensityReport: undefined,
+    },
     { cwd, configFilePath }
   );
 
