@@ -58,6 +58,9 @@ export const createOptions = async (options: CreateOptions) => {
     configFilePath ? await loadResolvedConfigFile(configFilePath, args) : {}
   );
 
+  // Strip extends before Zod validation (resolved by loadResolvedConfigFile, may leak from manifest.knip)
+  delete loadedConfig.extends;
+
   const validIssueTypes = new Set<string>(ISSUE_TYPES);
   for (const key of ['rules', 'include', 'exclude'] as const) {
     const value = loadedConfig[key];

@@ -1,0 +1,6 @@
+{
+  "ignore": ["b-ignored.js"],
+  "rules": {
+    "exports": "off"
+  }
+}

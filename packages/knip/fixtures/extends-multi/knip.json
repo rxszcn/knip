@@ -1,0 +1,4 @@
+{
+  "extends": ["./preset-a.json", "./preset-b.json"],
+  "ignore": ["main-ignored.js"]
+}

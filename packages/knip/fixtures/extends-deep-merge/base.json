@@ -1,0 +1,7 @@
+{
+  "ignore": ["generated.js"],
+  "rules": {
+    "files": "warn",
+    "exports": "off"
+  }
+}

@@ -1,6 +1,7 @@
 import type { ParsedCLIArgs } from './cli-arguments.ts';
 import { debugLogObject } from './debug.ts';
 import { ConfigurationError } from './errors.ts';
+import { resolveExtends } from './extends.ts';
 import { _load } from './loader.ts';
 
 const unwrapFunction = async (maybeFunction: unknown, options: ParsedCLIArgs) => {
@@ -15,11 +16,13 @@ const unwrapFunction = async (maybeFunction: unknown, options: ParsedCLIArgs) =>
   return maybeFunction;
 };
 
-export async function loadResolvedConfigFile(configPath: string, options: ParsedCLIArgs) {
+export async function loadResolvedConfigFile(configPath: string, options: ParsedCLIArgs): Promise<any> {
   const loadedValue = await _load(configPath);
   try {
-    return await unwrapFunction(loadedValue, options);
+    const rawConfig = await unwrapFunction(loadedValue, options);
+    return await resolveExtends(rawConfig as Record<string, any>, configPath);
   } catch (_error) {
-    throw new ConfigurationError(`Error running the function from ${configPath}`);
+    if (_error instanceof ConfigurationError) throw _error;
+    throw new ConfigurationError(`Error running the function from ${configPath}`, { cause: _error });
   }
 }

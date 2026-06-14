@@ -1,0 +1,7 @@
+{
+  "extends": "./base.json",
+  "ignore": ["vendor.js"],
+  "rules": {
+    "files": "error"
+  }
+}

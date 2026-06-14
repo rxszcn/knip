@@ -1,0 +1,4 @@
+{
+  "extends": "./base.json",
+  "ignore": ["level1.js"]
+}

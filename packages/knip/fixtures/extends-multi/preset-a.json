@@ -1,0 +1,6 @@
+{
+  "ignore": ["a-ignored.js"],
+  "rules": {
+    "files": "warn"
+  }
+}
