@@ -31,6 +31,7 @@ Scope
       --exports                Shortcut for --include exports,nsExports,types,nsTypes,enumMembers,namespaceMembers,duplicates
       --files                  Shortcut for --include files
       --tags                   Include or exclude tagged exports
+      --changed [base]         Report only issues in files changed vs base ref (default: main, master)
 
 Fix
   -f, --fix                    Fix issues (modifies files in your repo)
@@ -77,16 +78,29 @@ $ knip --workspace './apps/*' --workspace '@shared/utils'
 $ knip -c ./config/knip.json --reporter compact
 $ knip --reporter codeowners --reporter-options '{"path":".github/CODEOWNERS"}'
 $ knip --tags=-lintignore
+$ knip --changed
+$ knip --changed develop
 
 Website: https://knip.dev`;
 
 export type ParsedCLIArgs = ReturnType<typeof parseCLIArgs>;
 
-export default function parseCLIArgs() {
+// Node's parseArgs requires a value for `string` options. Allow a bare `--changed` (no base ref)
+// by rewriting it to `--changed=`, so it resolves to an empty string instead of throwing.
+const normalizeArgs = (argv: string[]) =>
+  argv.map((arg, index) => {
+    if (arg !== '--changed') return arg;
+    const next = argv[index + 1];
+    return next === undefined || next.startsWith('-') ? '--changed=' : arg;
+  });
+
+export default function parseCLIArgs(argv = process.argv.slice(2)) {
   return parseArgs({
+    args: normalizeArgs(argv),
     options: {
       cache: { type: 'boolean' },
       'cache-location': { type: 'string' },
+      changed: { type: 'string' },
       config: { type: 'string', short: 'c' },
       debug: { type: 'boolean', short: 'd' },
       dependencies: { type: 'boolean' },

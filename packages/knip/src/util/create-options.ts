@@ -130,6 +130,8 @@ export const createOptions = async (options: CreateOptions) => {
     config: args.config,
     configFilePath,
     cwd,
+    changedBase: args.changed || undefined,
+    isChanged: args.changed !== undefined,
     dependencies: args.dependencies ?? false,
     exports: args.exports ?? false,
     files: args.files ?? false,

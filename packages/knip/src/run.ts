@@ -10,9 +10,11 @@ import { ProjectPrincipal } from './ProjectPrincipal.ts';
 import watchReporter from './reporters/watch.ts';
 import type { MainOptions } from './util/create-options.ts';
 import { debugLogObject } from './util/debug.ts';
+import { getChangedFiles } from './util/git.ts';
 import { flushGitignoreCache, initGitignoreCache } from './util/gitignore-cache.ts';
 import { flushGlobCache, initGlobCache } from './util/glob-cache.ts';
 import { getGitIgnoredHandler } from './util/glob-core.ts';
+import { logWarning } from './util/log.ts';
 import { getModuleSourcePathHandler, getWorkspaceManifestHandler } from './util/to-source-path.ts';
 import { getSessionHandler, type OnFileChange, type SessionHandler } from './util/watch.ts';
 
@@ -44,6 +46,12 @@ export const run = async (options: MainOptions) => {
 
   collector.setWorkspaceFilter(chief.workspaceFilePathFilter);
   collector.setIgnoreIssues(chief.config.ignoreIssues);
+
+  if (options.isChanged) {
+    const changedFiles = getChangedFiles(options.cwd, options.changedBase);
+    if (changedFiles) collector.setChangedFiles(changedFiles);
+    else logWarning('Unable to determine changed files; is this a git repository? Reporting all issues');
+  }
 
   debugLogObject('*', 'Included workspaces', () => workspaces.map(w => w.pkgName));
   debugLogObject('*', 'Included workspace configs', () =>
