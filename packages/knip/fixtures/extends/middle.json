@@ -1,0 +1,8 @@
+{
+  "extends": "./base.json",
+  "entry": ["middle-entry.ts"],
+  "ignore": ["middle-ignore.ts"],
+  "rules": {
+    "files": "off"
+  }
+}

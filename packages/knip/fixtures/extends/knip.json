@@ -1,0 +1,9 @@
+{
+  "extends": ["./middle.json", "./preset-a.json", "./preset-b.json"],
+  "entry": ["root-entry.ts"],
+  "ignore": ["root-ignore.ts"],
+  "project": ["root/**"],
+  "rules": {
+    "dependencies": "off"
+  }
+}

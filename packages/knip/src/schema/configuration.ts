@@ -72,6 +72,26 @@ const rootConfigurationSchema = z.object({
    */
   $schema: z.optional(z.string()),
   /**
+   * Extend the configuration by inheriting from one or more other configuration files or
+   * npm packages. Relative paths are resolved from the directory of the current config file.
+   * When using an array, later entries override earlier ones, and the current config overrides all.
+   *
+   * @example
+   * ```json title="knip.json"
+   * {
+   *   "extends": "./base.json"
+   * }
+   * ```
+   *
+   * @example
+   * ```json title="knip.json"
+   * {
+   *   "extends": ["./base.json", "./overrides.json"]
+   * }
+   * ```
+   */
+  extends: z.optional(z.union([z.string(), z.array(z.string())])),
+  /**
    * @default {}
    *
    * @see {@link https://knip.dev/features/rules-and-filters | Rules & Filters}
@@ -407,6 +427,7 @@ const reportConfigSchema = z.object({
 });
 
 const baseWorkspaceConfigurationSchema = z.object({
+  extends: z.optional(z.union([z.string(), z.array(z.string())])),
   entry: z.optional(globSchema),
   project: z.optional(globSchema),
   paths: z.optional(pathsSchema),

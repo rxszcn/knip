@@ -1,0 +1,11 @@
+{
+  "entry": ["base-entry.ts"],
+  "project": ["base/**"],
+  "ignore": ["base-ignore.ts"],
+  "ignoreDependencies": ["base-dep"],
+  "rules": {
+    "files": "warn",
+    "dependencies": "error"
+  },
+  "includeEntryExports": true
+}

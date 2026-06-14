@@ -1,0 +1,7 @@
+{
+  "extends": "knip-preset",
+  "entry": ["local-entry.ts"],
+  "rules": {
+    "files": "error"
+  }
+}

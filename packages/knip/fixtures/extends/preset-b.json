@@ -1,0 +1,7 @@
+{
+  "entry": ["b-entry.ts"],
+  "rules": {
+    "exports": "off"
+  },
+  "tags": ["+preset-b"]
+}

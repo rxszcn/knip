@@ -55,8 +55,12 @@ export const createOptions = async (options: CreateOptions) => {
   const loadedConfig = Object.assign(
     {},
     manifest.knip,
-    configFilePath ? await loadResolvedConfigFile(configFilePath, args) : {}
+    configFilePath ? await (loadResolvedConfigFile(configFilePath, args) as Promise<any>) : {}
   );
+
+  if (manifest.knip?.extends) {
+    logWarning('The "extends" field in package.json#knip is not supported and will be ignored');
+  }
 
   const validIssueTypes = new Set<string>(ISSUE_TYPES);
   for (const key of ['rules', 'include', 'exclude'] as const) {

@@ -1,0 +1,7 @@
+{
+  "entry": ["a-entry.ts"],
+  "ignore": ["a-ignore.ts"],
+  "rules": {
+    "exports": "warn"
+  }
+}

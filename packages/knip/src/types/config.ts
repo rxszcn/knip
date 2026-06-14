@@ -86,6 +86,7 @@ export type EnsuredPluginConfiguration = {
 };
 
 interface BaseWorkspaceConfiguration {
+  extends?: string | string[];
   entry: NormalizedGlob;
   project: NormalizedGlob;
   paths: Record<string, string[]>;
