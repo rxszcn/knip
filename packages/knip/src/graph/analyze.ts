@@ -3,6 +3,7 @@ import type { ConfigurationChief } from '../ConfigurationChief.ts';
 import type { ConsoleStreamer } from '../ConsoleStreamer.ts';
 import type { DependencyDeputy } from '../DependencyDeputy.ts';
 import { createGraphExplorer } from '../graph-explorer/explorer.ts';
+import { findCycles } from '../graph-explorer/operations/find-cycles.ts';
 import { getIssueType, hasStrictlyEnumReferences } from '../graph-explorer/utils.ts';
 import type { IssueCollector } from '../IssueCollector.ts';
 import traceReporter from '../reporters/trace.ts';
@@ -274,6 +275,27 @@ export const analyze = async ({
               fixes: [],
             });
           }
+        }
+      }
+    }
+
+    if (options.isReportCircular) {
+      const seenCycles = new Set<string>();
+      for (const filePath of analyzedFiles) {
+        const cycles = findCycles(graph, filePath);
+        for (const cycle of cycles) {
+          const key = [...cycle].sort().join('|');
+          if (seenCycles.has(key)) continue;
+          seenCycles.add(key);
+          const ws = chief.findWorkspaceByFilePath(filePath);
+          collector.addIssue({
+            type: 'circular',
+            filePath,
+            workspace: ws?.name ?? '',
+            symbol: cycle.join(' -> '),
+            specifier: cycle.join(' -> '),
+            fixes: [],
+          });
         }
       }
     }
