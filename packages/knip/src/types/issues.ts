@@ -45,6 +45,7 @@ export type Issues = {
   enumMembers: IssueRecords;
   namespaceMembers: IssueRecords;
   catalog: IssueRecords;
+  circular: IssueRecords;
 };
 
 export type IssueType = keyof Issues;

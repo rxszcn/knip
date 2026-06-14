@@ -25,6 +25,7 @@ export type JSONReportEntry = {
   owners?: Array<JSONReportNamedItem>;
   binaries?: Array<JSONReportNamedItem>;
   catalog?: Array<JSONReportItem>;
+  circular?: Array<JSONReportItem>;
   dependencies?: Array<JSONReportItem>;
   devDependencies?: Array<JSONReportItem>;
   duplicates?: Array<Array<JSONReportItem>>;
@@ -63,6 +64,7 @@ export default async ({ report, issues, options, cwd }: ReporterOptions) => {
       ...(findOwners && { owners: findOwners(file).map(name => ({ name })) }),
       ...(report.binaries && { binaries: [] }),
       ...(report.catalog && { catalog: [] }),
+      ...(report.circular && { circular: [] }),
       ...(report.dependencies && { dependencies: [] }),
       ...(report.devDependencies && { devDependencies: [] }),
       ...(report.duplicates && { duplicates: [] }),

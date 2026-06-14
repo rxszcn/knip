@@ -3,6 +3,7 @@ import type { ConfigurationChief } from '../ConfigurationChief.ts';
 import type { ConsoleStreamer } from '../ConsoleStreamer.ts';
 import type { DependencyDeputy } from '../DependencyDeputy.ts';
 import { createGraphExplorer } from '../graph-explorer/explorer.ts';
+import { findCycles } from '../graph-explorer/operations/find-cycles.ts';
 import { getIssueType, hasStrictlyEnumReferences } from '../graph-explorer/utils.ts';
 import type { IssueCollector } from '../IssueCollector.ts';
 import traceReporter from '../reporters/trace.ts';
@@ -11,6 +12,7 @@ import type { Export, ModuleGraph } from '../types/module-graph.ts';
 import { shouldCountRefs } from '../typescript/ast-nodes.ts';
 import type { MainOptions } from '../util/create-options.ts';
 import { getPackageNameFromModuleSpecifier } from '../util/modules.ts';
+import { relative } from '../util/path.ts';
 import { perfObserver } from '../util/Performance.ts';
 import { findMatch } from '../util/regex.ts';
 import { getShouldIgnoreHandler, getShouldIgnoreTagHandler, isAlwaysIgnored } from '../util/tag.ts';
@@ -274,6 +276,35 @@ export const analyze = async ({
               fixes: [],
             });
           }
+        }
+      }
+    }
+
+    if (options.includedIssueTypes.circular) {
+      const seenCycles = new Set<string>();
+      for (const filePath of graph.keys()) {
+        const ws = chief.findWorkspaceByFilePath(filePath);
+        if (!ws) continue;
+        for (const cycle of findCycles(graph, filePath)) {
+          const members = cycle.slice(0, -1);
+          if (members.length === 0) continue;
+          // Canonicalize so the same cycle found from different entry points dedupes to one issue
+          const start = members.reduce((min, member) => (member < min ? member : min), members[0] as string);
+          const startIndex = members.indexOf(start);
+          const rotated = [...members.slice(startIndex), ...members.slice(0, startIndex)];
+          const key = rotated.join('\u0000');
+          if (seenCycles.has(key)) continue;
+          seenCycles.add(key);
+          const anchor = rotated[0] as string;
+          const anchorWorkspace = chief.findWorkspaceByFilePath(anchor) ?? ws;
+          const symbol = [...rotated, anchor].map(p => relative(options.cwd, p)).join(' → ');
+          collector.addIssue({
+            type: 'circular',
+            filePath: anchor,
+            workspace: anchorWorkspace.name,
+            symbol,
+            fixes: [],
+          });
         }
       }
     }
