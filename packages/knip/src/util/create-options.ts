@@ -163,6 +163,7 @@ export const createOptions = async (options: CreateOptions) => {
       includedIssueTypes.namespaceMembers ||
       includedIssueTypes.duplicates,
     isReportFiles: includedIssueTypes.files,
+    isReportIntensity: args['report-intensity'] ?? false,
     isReportTypes:
       includedIssueTypes.types ||
       includedIssueTypes.nsTypes ||

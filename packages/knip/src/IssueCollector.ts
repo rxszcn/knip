@@ -1,6 +1,6 @@
 import picomatch from 'picomatch';
 import type { IgnoreIssues } from './types/config.ts';
-import type { ConfigurationHint, ConfigurationHints, Issue, IssueType, Rules, TagHint } from './types/issues.ts';
+import type { ConfigurationHint, ConfigurationHints, DependencyIntensityHint, Issue, IssueType, Rules, TagHint } from './types/issues.ts';
 import { partition } from './util/array.ts';
 import type { MainOptions } from './util/create-options.ts';
 import { initCounters, initIssues } from './util/issue-initializers.ts';
@@ -33,6 +33,7 @@ export class IssueCollector {
   private referencedFiles = new Set<string>();
   private configurationHints: ConfigurationHints = new Map();
   private tagHints = new Set<TagHint>();
+  private intensityHints: DependencyIntensityHint[] = [];
   private ignorePatterns = new Set<string>();
   private ignoreFilesPatterns = new Set<string>();
   private isMatch: (filePath: string) => boolean;
@@ -177,6 +178,10 @@ export class IssueCollector {
     this.tagHints.add(issue);
   }
 
+  addIntensityHint(hint: DependencyIntensityHint) {
+    this.intensityHints.push(hint);
+  }
+
   purge() {
     const unusedFiles = new Set<string>();
     for (const issues of Object.values(this.issues.files)) {
@@ -193,6 +198,7 @@ export class IssueCollector {
       counters: this.counters,
       tagHints: this.tagHints,
       configurationHints: Array.from(this.configurationHints.values()),
+      intensityHints: this.intensityHints,
     };
   }
 

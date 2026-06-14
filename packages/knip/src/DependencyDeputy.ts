@@ -6,11 +6,14 @@ import {
   IGNORED_DEPENDENCIES,
   IGNORED_GLOBAL_BINARIES,
   IGNORED_RUNTIME_DEPENDENCIES,
+  IMPORT_STAR,
+  OPAQUE,
   ROOT_WORKSPACE_NAME,
+  SIDE_EFFECTS,
 } from './constants.ts';
 import { getDependencyMetaData } from './manifest/index.ts';
 import { PackagePeeker } from './PackagePeeker.ts';
-import type { ConfigurationHint, Counters, Issue, Issues, IssueType } from './types/issues.ts';
+import type { ConfigurationHint, Counters, DependencyIntensityHint, Issue, Issues, IssueType } from './types/issues.ts';
 import type { PackageJson } from './types/package-json.ts';
 import type {
   DependencyArray,
@@ -42,6 +45,7 @@ export class DependencyDeputy {
   isProduction;
   isStrict;
   isReportDependencies;
+  isReportIntensity;
   _manifests: WorkspaceManifests = new Map();
   workspacePkgNames: Set<string> = new Set();
   referencedDependencies: Map<string, Set<string>>;
@@ -49,16 +53,19 @@ export class DependencyDeputy {
   hostDependencies: Map<string, HostDependencies>;
   installedBinaries: Map<string, InstalledBinaries>;
   hasTypesIncluded: Map<string, Set<string>>;
+  dependencyIntensity: Map<string, Map<string, { files: Set<string>; namedExports: Set<string> }>>;
 
-  constructor({ isProduction, isStrict, isReportDependencies }: MainOptions) {
+  constructor({ isProduction, isStrict, isReportDependencies, isReportIntensity }: MainOptions) {
     this.isProduction = isProduction;
     this.isStrict = isStrict;
     this.isReportDependencies = isReportDependencies;
+    this.isReportIntensity = isReportIntensity;
     this.referencedDependencies = new Map();
     this.referencedBinaries = new Map();
     this.hostDependencies = new Map();
     this.installedBinaries = new Map();
     this.hasTypesIncluded = new Map();
+    this.dependencyIntensity = new Map();
   }
 
   public addWorkspace({
@@ -499,5 +506,53 @@ export class DependencyDeputy {
 
   public addIgnoredUnresolved(workspaceName: string, identifier: string) {
     this._manifests.get(workspaceName)?.ignoreUnresolved.push(toRegexOrString(identifier));
+  }
+
+  public trackDependencyIntensity(
+    workspaceName: string,
+    packageName: string,
+    filePath: string,
+    identifier: string | undefined
+  ) {
+    if (!this.isReportIntensity) return;
+    if (!this.dependencyIntensity.has(workspaceName)) {
+      this.dependencyIntensity.set(workspaceName, new Map());
+    }
+    const wsMap = this.dependencyIntensity.get(workspaceName)!;
+    if (!wsMap.has(packageName)) {
+      wsMap.set(packageName, { files: new Set(), namedExports: new Set() });
+    }
+    const entry = wsMap.get(packageName)!;
+    entry.files.add(filePath);
+    if (identifier && identifier !== SIDE_EFFECTS && identifier !== IMPORT_STAR && identifier !== OPAQUE) {
+      entry.namedExports.add(identifier);
+    }
+  }
+
+  public getIntensityHints(totalFiles: number): DependencyIntensityHint[] {
+    const hints: DependencyIntensityHint[] = [];
+    const FILE_RATIO_THRESHOLD = 0.05;
+    const NAMED_EXPORTS_THRESHOLD = 3;
+
+    for (const [workspaceName, wsMap] of this.dependencyIntensity) {
+      for (const [packageName, metrics] of wsMap) {
+        const fileRatio = totalFiles > 0 ? metrics.files.size / totalFiles : 0;
+        const namedExportsCount = metrics.namedExports.size;
+
+        if (fileRatio < FILE_RATIO_THRESHOLD && namedExportsCount < NAMED_EXPORTS_THRESHOLD) {
+          hints.push({
+            workspaceName,
+            packageName,
+            fileCount: metrics.files.size,
+            totalFiles,
+            fileRatio,
+            namedExportsCount,
+          });
+        }
+      }
+    }
+
+    hints.sort((a, b) => a.fileRatio - b.fileRatio || a.packageName.localeCompare(b.packageName));
+    return hints;
   }
 }

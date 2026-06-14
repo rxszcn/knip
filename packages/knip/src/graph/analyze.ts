@@ -257,6 +257,9 @@ export const analyze = async ({
                 col: extImport.col,
                 fixes: [],
               });
+            if (packageName) {
+              deputy.trackDependencyIntensity(ws.name, packageName, filePath, extImport.identifier);
+            }
           }
         }
 
@@ -296,6 +299,11 @@ export const analyze = async ({
 
       const configurationHints = deputy.getConfigurationHints();
       for (const hint of configurationHints) collector.addConfigurationHint(hint);
+    }
+
+    if (options.isReportIntensity) {
+      const intensityHints = deputy.getIntensityHints(analyzedFiles.size);
+      for (const hint of intensityHints) collector.addIntensityHint(hint);
     }
 
     const catalogIssues = await counselor.settleCatalogIssues(options);

@@ -55,12 +55,23 @@ export type Report = {
 
 export type Counters = Record<IssueType | 'processed' | 'total', number>;
 
+export type DependencyIntensityHint = {
+  workspaceName: string;
+  packageName: string;
+  fileCount: number;
+  totalFiles: number;
+  fileRatio: number;
+  namedExportsCount: number;
+};
+
 export type ReporterOptions = {
   report: Report;
   issues: Issues;
   counters: Counters;
   tagHints: TagHints;
   configurationHints: ConfigurationHint[];
+  intensityHints: DependencyIntensityHint[];
+  isReportIntensity: boolean;
   enabledPlugins: Record<string, string[]>;
   isDisableConfigHints: boolean;
   isDisableTagHints: boolean;

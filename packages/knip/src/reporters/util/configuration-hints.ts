@@ -1,5 +1,5 @@
 import type { Results } from '../../run.ts';
-import type { ConfigurationHint, ConfigurationHintType, ReporterOptions } from '../../types/issues.ts';
+import type { ConfigurationHint, ConfigurationHintType, DependencyIntensityHint, ReporterOptions } from '../../types/issues.ts';
 import { relative, toRelative } from '../../util/path.ts';
 import { Table } from '../../util/table.ts';
 import { byPathDepth } from '../../util/workspace.ts';
@@ -164,6 +164,7 @@ export const printConfigurationHints = ({
   issues,
   tagHints,
   configurationHints,
+  intensityHints,
   enabledPlugins,
   isTreatConfigHintsAsErrors,
   includedWorkspaceDirs,
@@ -171,7 +172,7 @@ export const printConfigurationHints = ({
   configFilePath,
 }: ReporterOptions) => {
   const rows = finalizeConfigurationHints(
-    { issues, counters, configurationHints, tagHints, includedWorkspaceDirs, selectedWorkspaces, enabledPlugins },
+    { issues, counters, configurationHints, tagHints, intensityHints, includedWorkspaceDirs, selectedWorkspaces, enabledPlugins },
     { cwd, configFilePath }
   );
 
@@ -192,4 +193,22 @@ export const printTagHints = ({ cwd, tagHints, isTreatTagHintsAsErrors }: Report
       console.warn(dim(message), `${identifier} → ${tagName}`);
     }
   }
+};
+
+export const printIntensityHints = ({ intensityHints }: ReporterOptions) => {
+  if (intensityHints.length === 0) return;
+
+  console.warn(getDimmedTitle('Dependency intensity hints', intensityHints.length));
+
+  const table = new Table({ truncate: { package: 'start', workspace: 'start' } });
+  for (const hint of intensityHints) {
+    table.row();
+    table.cell('package', hint.packageName);
+    table.cell('workspace', hint.workspaceName !== '.' ? hint.workspaceName : '');
+    table.cell('files', `${hint.fileCount}/${hint.totalFiles}`);
+    table.cell('ratio', `${(hint.fileRatio * 100).toFixed(1)}%`);
+    table.cell('namedExports', String(hint.namedExportsCount));
+    table.cell('suggestion', dim('Consider replacing with a lighter alternative'));
+  }
+  console.warn(table.toString());
 };

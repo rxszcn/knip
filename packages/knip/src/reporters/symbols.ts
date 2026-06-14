@@ -1,6 +1,6 @@
 import type { Entries } from '../types/entries.ts';
 import type { ReporterOptions } from '../types/issues.ts';
-import { printConfigurationHints, printTagHints } from './util/configuration-hints.ts';
+import { printConfigurationHints, printIntensityHints, printTagHints } from './util/configuration-hints.ts';
 import { dim, flattenIssues, getColoredTitle, getIssueTypeTitle, getTableForType } from './util/util.ts';
 
 export default (options: ReporterOptions) => {
@@ -33,6 +33,10 @@ export default (options: ReporterOptions) => {
 
   if (!isDisableTagHints) {
     printTagHints(options);
+  }
+
+  if (options.isReportIntensity) {
+    printIntensityHints(options);
   }
 
   if (
