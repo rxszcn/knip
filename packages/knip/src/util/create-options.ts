@@ -137,6 +137,7 @@ export const createOptions = async (options: CreateOptions) => {
     gitignore: args['no-gitignore'] ? false : (options.gitignore ?? true),
     includedIssueTypes,
     isCache: args.cache ?? false,
+    isCacheStats: args['cache-stats'] ?? false,
     isDebug,
     isDisableConfigHints: args['no-config-hints'] || isProduction || Boolean(workspace),
     isDisableTagHints: Boolean(args['no-tag-hints']),

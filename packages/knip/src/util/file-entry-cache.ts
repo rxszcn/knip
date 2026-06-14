@@ -36,6 +36,8 @@ export class FileEntryCache<T> {
   filePath: string;
   cache = new Map<string, MetaData<T>>();
   normalizedEntries = new Map<string, FileDescriptor<T>>();
+  hits = 0;
+  misses = 0;
 
   constructor(cacheId: string, _path: string) {
     this.filePath = path.resolve(_path, cacheId);
@@ -45,12 +47,16 @@ export class FileEntryCache<T> {
   getFileDescriptor(filePath: string): FileDescriptor<T> {
     if (!isAbsolute(filePath)) filePath = resolve(filePath);
     const existing = this.normalizedEntries.get(filePath);
-    if (existing) return existing;
+    if (existing) {
+      existing.changed ? this.misses++ : this.hits++;
+      return existing;
+    }
 
     let fstat: fs.Stats;
     try {
       fstat = fs.statSync(filePath);
     } catch (error: unknown) {
+      this.misses++;
       this.removeEntry(filePath);
       return { key: filePath, notFound: true, err: error };
     }
@@ -73,6 +79,8 @@ export class FileEntryCache<T> {
       this.cache.set(filePath, meta);
     }
 
+    changed ? this.misses++ : this.hits++;
+
     const fd: FileDescriptor<T> = { key: filePath, changed, meta };
     this.normalizedEntries.set(filePath, fd);
     return fd;
@@ -92,5 +100,15 @@ export class FileEntryCache<T> {
     } catch (_err) {
       debugLog('*', `Error writing cache to ${this.filePath}`);
     }
+  }
+
+  getStats() {
+    let diskSize = 0;
+    try {
+      if (isFile(this.filePath)) diskSize = fs.statSync(this.filePath).size;
+    } catch {
+      // ignore
+    }
+    return { hits: this.hits, misses: this.misses, diskSize };
   }
 }

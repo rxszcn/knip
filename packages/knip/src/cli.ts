@@ -15,7 +15,7 @@ import {
 import { logError } from './util/log.ts';
 import { perfObserver } from './util/Performance.ts';
 import { runPreprocessors, runReporters } from './util/reporter.ts';
-import { prettyMilliseconds } from './util/string.ts';
+import { formatBytes, prettyMilliseconds } from './util/string.ts';
 import { version } from './version.ts';
 
 let args: ReturnType<typeof parseArgs> = {};
@@ -100,6 +100,19 @@ const main = async () => {
       const duration = perfObserver.getCurrentDurationInMs();
       console.log('\nTotal running time:', prettyMilliseconds(duration));
       perfObserver.reset();
+    }
+
+    if (options.isCacheStats) {
+      const { cacheStats } = results;
+      const total = cacheStats.hits + cacheStats.misses;
+      const hitRate = total > 0 ? ((cacheStats.hits / total) * 100).toFixed(1) : '0.0';
+      const diskSize = formatBytes(cacheStats.diskSize);
+      console.log('\nCache statistics:');
+      console.log(`  Files analyzed:  ${total}`);
+      console.log(`  Cache hits:      ${cacheStats.hits}`);
+      console.log(`  Cache misses:    ${cacheStats.misses}`);
+      console.log(`  Hit rate:        ${hitRate}%`);
+      console.log(`  Disk size:       ${diskSize}`);
     }
 
     if (

@@ -80,6 +80,8 @@ export async function build({
   const rawRootManifest = chief.getManifestForWorkspace('.');
   const rootManifest = rawRootManifest ? createManifest(rawRootManifest) : undefined;
 
+  const workerCacheStats = { hits: 0, misses: 0, diskSize: 0 };
+
   for (const workspace of workspaces) {
     const { name, dir, manifestPath, manifestStr } = workspace;
     const manifest = chief.getManifestForWorkspace(name);
@@ -360,6 +362,10 @@ export async function build({
     }
 
     worker.onDispose();
+    const ws = worker.cache.getStats();
+    workerCacheStats.hits += ws.hits;
+    workerCacheStats.misses += ws.misses;
+    workerCacheStats.diskSize += ws.diskSize;
     perfObserver.addMemoryMark(name);
   }
 
@@ -527,5 +533,6 @@ export async function build({
     unreferencedFiles,
     analyzeSourceFile,
     enabledPluginsStore,
+    workerCacheStats,
   };
 }

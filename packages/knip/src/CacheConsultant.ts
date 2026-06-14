@@ -3,7 +3,10 @@ import { type FileDescriptor, FileEntryCache } from './util/file-entry-cache.ts'
 import { timerify } from './util/Performance.ts';
 import { version } from './version.ts';
 
+export type CacheStats = { hits: number; misses: number; diskSize: number };
+
 const dummyFileDescriptor: FileDescriptor<any> = { key: '', changed: true, notFound: true };
+const emptyStats: CacheStats = { hits: 0, misses: 0, diskSize: 0 };
 
 export class CacheConsultant<T> {
   private cache: FileEntryCache<T> | undefined;
@@ -24,5 +27,10 @@ export class CacheConsultant<T> {
     if (!this.cache) return undefined;
     const fd = this.cache.getFileDescriptor(filePath);
     return !fd.changed ? fd.meta?.data : undefined;
+  }
+
+  getStats(): CacheStats {
+    if (!this.cache) return emptyStats;
+    return this.cache.getStats();
   }
 }

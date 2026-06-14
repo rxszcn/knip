@@ -16,6 +16,7 @@ Options:
 Mode
       --cache                  Enable caching
       --cache-location         Change cache location (default: node_modules/.cache/knip)
+      --cache-stats            Print cache hit/miss statistics after analysis
       --include-entry-exports  Include entry files when reporting unused exports
       --no-gitignore           Don't respect .gitignore
   -p, --production             Analyze only production source files (e.g. no test files, devDependencies)
@@ -87,6 +88,7 @@ export default function parseCLIArgs() {
     options: {
       cache: { type: 'boolean' },
       'cache-location': { type: 'string' },
+      'cache-stats': { type: 'boolean' },
       config: { type: 'string', short: 'c' },
       debug: { type: 'boolean', short: 'd' },
       dependencies: { type: 'boolean' },

@@ -100,7 +100,7 @@ interface ProcessedHint extends ConfigurationHint {
 }
 
 export const finalizeConfigurationHints = (
-  results: Results,
+  results: Omit<Results, 'cacheStats'>,
   options: { cwd: string; configFilePath?: string }
 ): ProcessedHint[] => {
   if (results.counters.files > 20) {

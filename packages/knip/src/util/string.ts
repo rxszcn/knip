@@ -70,3 +70,11 @@ export const prettyMilliseconds = (ms: number): string => {
   if (seconds > 1) return `${seconds.toFixed(1)}s`;
   return `${Math.round(ms)}ms`;
 };
+
+export const formatBytes = (bytes: number): string => {
+  if (bytes === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const value = bytes / 1024 ** i;
+  return `${i === 0 ? value : value.toFixed(1)} ${units[i]}`;
+};
