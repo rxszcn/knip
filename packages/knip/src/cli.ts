@@ -18,6 +18,13 @@ import { runPreprocessors, runReporters } from './util/reporter.ts';
 import { prettyMilliseconds } from './util/string.ts';
 import { version } from './version.ts';
 
+// Handle subcommands before parsing regular CLI args
+if (process.argv[2] === 'init') {
+  const { runInit } = await import('./init.ts');
+  await runInit();
+  process.exit(process.exitCode ?? 0);
+}
+
 let args: ReturnType<typeof parseArgs> = {};
 try {
   args = parseArgs();

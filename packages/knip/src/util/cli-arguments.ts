@@ -3,6 +3,7 @@ import { parseArgs } from 'node:util';
 export const helpText = `✂️  Find unused dependencies, exports and files in your JavaScript and TypeScript projects
 
 Usage: knip [options]
+       knip init [-y]    Generate a knip.json configuration file
 
 Options:
   -h, --help                   Print this help text
