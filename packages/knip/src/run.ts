@@ -44,6 +44,7 @@ export const run = async (options: MainOptions) => {
 
   collector.setWorkspaceFilter(chief.workspaceFilePathFilter);
   collector.setIgnoreIssues(chief.config.ignoreIssues);
+  if (options.changedFiles) collector.setChangedFilesFilter(options.changedFiles);
 
   debugLogObject('*', 'Included workspaces', () => workspaces.map(w => w.pkgName));
   debugLogObject('*', 'Included workspace configs', () =>

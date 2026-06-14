@@ -38,6 +38,7 @@ export class IssueCollector {
   private isMatch: (filePath: string) => boolean;
   private isFileMatch: (filePath: string) => boolean;
   private issueMatchers: Map<IssueType, (filePath: string) => boolean> = new Map();
+  private changedFiles: Set<string> | undefined;
   private isTrackUnusedIgnorePatterns: boolean;
   private unusedIgnorePatterns: Map<string, TrackedPattern> = new Map();
   private unusedIgnoreFilesPatterns: Map<string, TrackedPattern> = new Map();
@@ -53,6 +54,10 @@ export class IssueCollector {
 
   setWorkspaceFilter(workspaceFilePathFilter: WorkspaceFilePathFilter | undefined) {
     if (workspaceFilePathFilter) this.workspaceFilter = workspaceFilePathFilter;
+  }
+
+  setChangedFilesFilter(changedFiles: Set<string>) {
+    this.changedFiles = changedFiles;
   }
 
   private collectIgnorePatterns(
@@ -127,6 +132,7 @@ export class IssueCollector {
   addFilesIssues(filePaths: string[]) {
     for (const filePath of filePaths) {
       if (!this.workspaceFilter(filePath)) continue;
+      if (this.changedFiles && !this.changedFiles.has(filePath)) continue;
       if (this.referencedFiles.has(filePath)) continue;
       if (this.isMatch(filePath)) {
         this.markUsedPatterns(filePath, this.unusedIgnorePatterns);
@@ -150,6 +156,7 @@ export class IssueCollector {
 
   addIssue(issue: Issue) {
     if (!this.workspaceFilter(issue.filePath)) return;
+    if (this.changedFiles && !this.changedFiles.has(issue.filePath)) return;
     if (this.isMatch(issue.filePath)) {
       this.markUsedPatterns(issue.filePath, this.unusedIgnorePatterns);
       return;

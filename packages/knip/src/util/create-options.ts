@@ -9,6 +9,7 @@ import { getCatalogContainer } from './catalog.ts';
 import type { ParsedCLIArgs } from './cli-arguments.ts';
 import { ConfigurationError } from './errors.ts';
 import { findFile, loadJSON } from './fs.ts';
+import { getGitChangedFiles } from './git.ts';
 import { getIncludedIssueTypes, shorthandDeps, shorthandExports, shorthandFiles } from './get-included-issue-types.ts';
 import { defaultRules } from './issue-initializers.ts';
 import { loadResolvedConfigFile } from './load-config.ts';
@@ -98,6 +99,8 @@ export const createOptions = async (options: CreateOptions) => {
   const isDebug = args.debug ?? false;
   const isTrace = Boolean(args.trace ?? args['trace-file'] ?? args['trace-export'] ?? args['trace-dependency']);
 
+  const changedFiles = args.changed ? getGitChangedFiles(cwd, args['base-ref']) : undefined;
+
   const rules = { ...defaultRules, ...parsedConfig.rules };
   const excludesFromRules = getKeysByValue(rules, 'off');
 
@@ -127,6 +130,7 @@ export const createOptions = async (options: CreateOptions) => {
   return {
     cacheLocation: args['cache-location'] ?? join(cwd, 'node_modules', '.cache', 'knip'),
     catalog: await getCatalogContainer(cwd, manifest, manifestPath, pnpmWorkspacePath, pnpmWorkspace),
+    changedFiles,
     config: args.config,
     configFilePath,
     cwd,

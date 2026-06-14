@@ -25,6 +25,8 @@ Mode
 Scope
   -W, --workspace [filter]     Filter workspaces by name, directory, or glob (can be repeated)
   -D, --directory [dir]        Run process from a different directory (default: cwd)
+      --changed                Report issues only in files changed since base ref (default: main/master)
+      --base-ref [ref]         Base ref for --changed (default: main or master)
       --include                Report only provided issue type(s), can be comma-separated or repeated (1)
       --exclude                Exclude provided issue type(s) from report, can be comma-separated or repeated (1)
       --dependencies           Shortcut for --include dependencies,unlisted,binaries,unresolved,catalog
@@ -85,8 +87,10 @@ export type ParsedCLIArgs = ReturnType<typeof parseCLIArgs>;
 export default function parseCLIArgs() {
   return parseArgs({
     options: {
+      'base-ref': { type: 'string' },
       cache: { type: 'boolean' },
       'cache-location': { type: 'string' },
+      changed: { type: 'boolean' },
       config: { type: 'string', short: 'c' },
       debug: { type: 'boolean', short: 'd' },
       dependencies: { type: 'boolean' },
