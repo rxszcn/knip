@@ -1,4 +1,5 @@
 /* oxlint-disable no-console */
+import { CacheConsultant } from './CacheConsultant.ts';
 import { fix } from './IssueFixer.ts';
 import { run } from './run.ts';
 import type { IssueType, ReporterOptions } from './types/issues.ts';
@@ -15,7 +16,7 @@ import {
 import { logError } from './util/log.ts';
 import { perfObserver } from './util/Performance.ts';
 import { runPreprocessors, runReporters } from './util/reporter.ts';
-import { prettyMilliseconds } from './util/string.ts';
+import { prettyBytes, prettyMilliseconds } from './util/string.ts';
 import { version } from './version.ts';
 
 let args: ReturnType<typeof parseArgs> = {};
@@ -100,6 +101,20 @@ const main = async () => {
       const duration = perfObserver.getCurrentDurationInMs();
       console.log('\nTotal running time:', prettyMilliseconds(duration));
       perfObserver.reset();
+    }
+
+    if (args['cache-stats']) {
+      if (!options.isCache) {
+        console.log('\nNote: --cache-stats has no effect without --cache');
+      } else {
+        const { analyzedFiles, hits, misses, hitRatio, cacheSize } = CacheConsultant.getStats();
+        console.log('\nCache statistics:');
+        console.log(`  Files analyzed:  ${analyzedFiles}`);
+        console.log(`  Cache hits:      ${hits}`);
+        console.log(`  Cache misses:    ${misses}`);
+        console.log(`  Hit ratio:       ${(hitRatio * 100).toFixed(1)}%`);
+        console.log(`  Cache size:      ${prettyBytes(cacheSize)}`);
+      }
     }
 
     if (

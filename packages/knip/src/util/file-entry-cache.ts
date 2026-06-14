@@ -36,6 +36,8 @@ export class FileEntryCache<T> {
   filePath: string;
   cache = new Map<string, MetaData<T>>();
   normalizedEntries = new Map<string, FileDescriptor<T>>();
+  hits = 0;
+  misses = 0;
 
   constructor(cacheId: string, _path: string) {
     this.filePath = path.resolve(_path, cacheId);
@@ -73,6 +75,9 @@ export class FileEntryCache<T> {
       this.cache.set(filePath, meta);
     }
 
+    if (changed) this.misses++;
+    else this.hits++;
+
     const fd: FileDescriptor<T> = { key: filePath, changed, meta };
     this.normalizedEntries.set(filePath, fd);
     return fd;
@@ -91,6 +96,14 @@ export class FileEntryCache<T> {
       fs.writeFileSync(this.filePath, serialize(this.cache));
     } catch (_err) {
       debugLog('*', `Error writing cache to ${this.filePath}`);
+    }
+  }
+
+  getCacheSize(): number {
+    try {
+      return fs.statSync(this.filePath).size;
+    } catch {
+      return 0;
     }
   }
 }

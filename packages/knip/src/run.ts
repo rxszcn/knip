@@ -1,4 +1,5 @@
 import { watch } from 'node:fs';
+import { CacheConsultant } from './CacheConsultant.ts';
 import { CatalogCounselor } from './CatalogCounselor.ts';
 import { ConfigurationChief } from './ConfigurationChief.ts';
 import { ConsoleStreamer } from './ConsoleStreamer.ts';
@@ -23,6 +24,7 @@ export const run = async (options: MainOptions) => {
   debugLogObject('*', 'Included issue types', options.includedIssueTypes);
 
   if (options.isCache) {
+    CacheConsultant.resetStats();
     initGlobCache(options.cacheLocation);
     initGitignoreCache(options.cacheLocation);
   }
