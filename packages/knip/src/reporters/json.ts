@@ -26,6 +26,7 @@ export type JSONReportEntry = {
   binaries?: Array<JSONReportNamedItem>;
   catalog?: Array<JSONReportItem>;
   dependencies?: Array<JSONReportItem>;
+  deprecated?: Array<JSONReportItem>;
   devDependencies?: Array<JSONReportItem>;
   duplicates?: Array<Array<JSONReportItem>>;
   enumMembers?: Array<JSONReportItem>;
@@ -64,6 +65,7 @@ export default async ({ report, issues, options, cwd }: ReporterOptions) => {
       ...(report.binaries && { binaries: [] }),
       ...(report.catalog && { catalog: [] }),
       ...(report.dependencies && { dependencies: [] }),
+      ...(report.deprecated && { deprecated: [] }),
       ...(report.devDependencies && { devDependencies: [] }),
       ...(report.duplicates && { duplicates: [] }),
       ...(report.enumMembers && { enumMembers: [] }),

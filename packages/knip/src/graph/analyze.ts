@@ -11,6 +11,7 @@ import type { Export, ModuleGraph } from '../types/module-graph.ts';
 import { shouldCountRefs } from '../typescript/ast-nodes.ts';
 import type { MainOptions } from '../util/create-options.ts';
 import { getPackageNameFromModuleSpecifier } from '../util/modules.ts';
+import { getDeprecatedIssues } from '../util/registry.ts';
 import { perfObserver } from '../util/Performance.ts';
 import { findMatch } from '../util/regex.ts';
 import { getShouldIgnoreHandler, getShouldIgnoreTagHandler, isAlwaysIgnored } from '../util/tag.ts';
@@ -300,6 +301,15 @@ export const analyze = async ({
 
     const catalogIssues = await counselor.settleCatalogIssues(options);
     for (const issue of catalogIssues) collector.addIssue(issue);
+
+    if (options.isCheckDeprecated && options.includedIssueTypes.deprecated) {
+      streamer.cast('Checking for deprecated dependencies');
+      const deprecatedIssues = await getDeprecatedIssues(
+        deputy.getDeprecatableDependencies(options.isProduction),
+        options.cwd
+      );
+      for (const issue of deprecatedIssues) collector.addIssue(issue);
+    }
 
     const unusedIgnoredWorkspaces = chief.getUnusedIgnoredWorkspaces();
     for (const identifier of unusedIgnoredWorkspaces) {

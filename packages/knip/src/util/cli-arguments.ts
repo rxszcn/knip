@@ -16,6 +16,7 @@ Options:
 Mode
       --cache                  Enable caching
       --cache-location         Change cache location (default: node_modules/.cache/knip)
+      --check-deprecated       Report dependencies marked as deprecated on the npm registry (requires network)
       --include-entry-exports  Include entry files when reporting unused exports
       --no-gitignore           Don't respect .gitignore
   -p, --production             Analyze only production source files (e.g. no test files, devDependencies)
@@ -63,7 +64,7 @@ Troubleshooting
       --trace-export [name]    Show trace output for named export(s)
       --trace-file [file]      Show trace output for exports in file
 
-(1) Issue types: files, dependencies, unlisted, unresolved, exports, nsExports, types, nsTypes, enumMembers, namespaceMembers, duplicates, catalog
+(1) Issue types: files, dependencies, deprecated, unlisted, unresolved, exports, nsExports, types, nsTypes, enumMembers, namespaceMembers, duplicates, catalog
 (2) Fixable issue types: dependencies, exports, types, files, catalog
 (3) Built-in reporters: symbols (default), compact, codeowners, json, codeclimate, markdown, disclosure, github-actions
 
@@ -87,6 +88,7 @@ export default function parseCLIArgs() {
     options: {
       cache: { type: 'boolean' },
       'cache-location': { type: 'string' },
+      'check-deprecated': { type: 'boolean' },
       config: { type: 'string', short: 'c' },
       debug: { type: 'boolean', short: 'd' },
       dependencies: { type: 'boolean' },

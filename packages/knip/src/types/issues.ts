@@ -34,6 +34,7 @@ export type Issues = {
   dependencies: IssueRecords;
   devDependencies: IssueRecords;
   optionalPeerDependencies: IssueRecords;
+  deprecated: IssueRecords;
   unlisted: IssueRecords;
   binaries: IssueRecords;
   unresolved: IssueRecords;

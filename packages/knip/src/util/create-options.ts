@@ -111,6 +111,7 @@ export const createOptions = async (options: CreateOptions) => {
       ...(args.dependencies ? shorthandDeps : []),
       ...(args.exports ? shorthandExports : []),
       ...(args.files ? shorthandFiles : []),
+      ...(args['check-deprecated'] || options.isCheckDeprecated ? ['deprecated'] : []),
     ],
   });
 
@@ -137,6 +138,7 @@ export const createOptions = async (options: CreateOptions) => {
     gitignore: args['no-gitignore'] ? false : (options.gitignore ?? true),
     includedIssueTypes,
     isCache: args.cache ?? false,
+    isCheckDeprecated: args['check-deprecated'] ?? options.isCheckDeprecated ?? false,
     isDebug,
     isDisableConfigHints: args['no-config-hints'] || isProduction || Boolean(workspace),
     isDisableTagHints: Boolean(args['no-tag-hints']),

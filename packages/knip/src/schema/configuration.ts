@@ -17,6 +17,7 @@ const issueTypeSchema = z.union([
   z.literal('dependencies'),
   z.literal('devDependencies'),
   z.literal('optionalPeerDependencies'),
+  z.literal('deprecated'),
   z.literal('unlisted'),
   z.literal('binaries'),
   z.literal('unresolved'),

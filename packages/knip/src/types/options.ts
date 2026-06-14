@@ -6,6 +6,7 @@ export interface Options {
   gitignore: boolean;
   includedIssueTypes: string[];
   isCache: boolean;
+  isCheckDeprecated: boolean;
   isDebug: boolean;
   isDependenciesShorthand: boolean;
   isExportsShorthand: boolean;

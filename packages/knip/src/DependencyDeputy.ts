@@ -20,6 +20,7 @@ import type {
   WorkspaceManifests,
 } from './types/workspace.ts';
 import type { MainOptions } from './util/create-options.ts';
+import type { DeprecatableDependencies } from './util/registry.ts';
 import {
   getDefinitelyTypedFor,
   getPackageFromDefinitelyTyped,
@@ -161,6 +162,32 @@ export class DependencyDeputy {
     deps = manifest ? new Set([...manifest.dependencies, ...manifest.devDependencies]) : new Set();
     this.dependencyCache.set(workspaceName, deps);
     return deps;
+  }
+
+  getDeprecatableDependencies(isProduction: boolean): DeprecatableDependencies[] {
+    const result: DeprecatableDependencies[] = [];
+    for (const [workspaceName, manifest] of this._manifests) {
+      const declared = isProduction
+        ? manifest.dependencies
+        : [...new Set([...manifest.dependencies, ...manifest.devDependencies])];
+      const names: string[] = [];
+      for (const name of declared) {
+        if (this.workspacePkgNames.has(name)) continue;
+        if (isBuiltin(name)) continue;
+        if (IGNORED_RUNTIME_DEPENDENCIES.has(name)) continue;
+        if (findMatch(manifest.ignoreDependencies, name)) continue;
+        names.push(name);
+      }
+      if (names.length > 0) {
+        result.push({
+          workspaceName,
+          manifestPath: manifest.manifestPath,
+          workspaceDir: manifest.workspaceDir,
+          names,
+        });
+      }
+    }
+    return result;
   }
 
   addReferencedDependency(workspaceName: string, packageName: string) {

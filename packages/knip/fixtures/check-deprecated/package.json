@@ -1,0 +1,7 @@
+{
+  "name": "@fixtures/check-deprecated",
+  "dependencies": {
+    "deprecated-pkg": "*",
+    "fine-pkg": "*"
+  }
+}
