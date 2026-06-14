@@ -1,0 +1,7 @@
+{
+  "name": "@graph/utils",
+  "version": "1.0.0",
+  "dependencies": {
+    "@graph/core": "workspace:*"
+  }
+}

@@ -57,7 +57,7 @@ const main = async () => {
     } = results;
 
     // These modes have their own reporting mechanism
-    if (options.isWatch || options.isTrace) return;
+    if (options.isWatch || options.isTrace || options.isWorkspaceGraph) return;
 
     const initialData: ReporterOptions = {
       report: options.includedIssueTypes,

@@ -1,0 +1,7 @@
+{
+  "name": "@fixtures/workspace-graph",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}

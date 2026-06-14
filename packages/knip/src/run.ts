@@ -15,6 +15,7 @@ import { flushGlobCache, initGlobCache } from './util/glob-cache.ts';
 import { getGitIgnoredHandler } from './util/glob-core.ts';
 import { getModuleSourcePathHandler, getWorkspaceManifestHandler } from './util/to-source-path.ts';
 import { getSessionHandler, type OnFileChange, type SessionHandler } from './util/watch.ts';
+import { getWorkspaceGraphMermaid } from './util/workspace-graph-mermaid.ts';
 
 export type Results = Awaited<ReturnType<typeof run>>['results'];
 
@@ -36,6 +37,28 @@ export const run = async (options: MainOptions) => {
   streamer.cast('Reading workspace configuration');
 
   const workspaces = await chief.getWorkspaces();
+
+  if (options.isWorkspaceGraph) {
+    streamer.clear();
+    // oxlint-disable-next-line no-console
+    console.log(getWorkspaceGraphMermaid(chief.workspacePackages, chief.availableWorkspacePkgNames));
+    const { issues, counters, tagHints, configurationHints } = collector.getIssues();
+    const enabledPlugins: Record<string, string[]> = {};
+    return {
+      results: {
+        issues,
+        counters,
+        tagHints,
+        configurationHints,
+        selectedWorkspaces: chief.selectedWorkspaces ? Array.from(chief.selectedWorkspaces) : undefined,
+        includedWorkspaceDirs: Array.from(chief.workspacesByDir.keys()),
+        enabledPlugins,
+      },
+      session: undefined,
+      streamer,
+    };
+  }
+
   const isGitIgnored = await getGitIgnoredHandler(options, new Set(workspaces.map(w => w.dir)));
 
   const toSourceFilePath = getModuleSourcePathHandler(chief);

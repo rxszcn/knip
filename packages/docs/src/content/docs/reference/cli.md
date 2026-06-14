@@ -375,6 +375,32 @@ The default exit codes:
 | `1`  | Knip ran successfully, but there is at least one lint issue      |
 | `2`  | Knip did not run successfully due to bad input or internal error |
 
+### `--workspace-graph`
+
+Print a [Mermaid][18] flowchart of the dependencies between the workspaces of a
+monorepo, then exit (no files are analyzed). Each workspace is a node. Edges are
+derived from internal `dependencies` (solid arrows) and `devDependencies`
+(dotted arrows):
+
+```sh
+knip --workspace-graph
+```
+
+Example output:
+
+```text frame=terminal
+flowchart TD
+  %% --> dependencies, -.-> devDependencies
+  _graph_app["@graph/app"]
+  _graph_core["@graph/core"]
+  _graph_utils["@graph/utils"]
+  _graph_app --> _graph_core
+  _graph_app -.-> _graph_utils
+  _graph_utils --> _graph_core
+```
+
+Paste the output into any Mermaid renderer to visualize the workspace graph.
+
 ## Troubleshooting
 
 ### `--debug`
@@ -520,3 +546,4 @@ Trace file to see where its exports are imported. Implies [--trace][17].
 [15]: https://github.com/oven-sh/bun/issues/9271
 [16]: ../guides/troubleshooting.md#trace
 [17]: #--trace
+[18]: https://mermaid.js.org

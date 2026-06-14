@@ -1,0 +1,7 @@
+{
+  "name": "@graph/testing",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@graph/core": "workspace:*"
+  }
+}

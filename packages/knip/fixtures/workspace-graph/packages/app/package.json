@@ -1,0 +1,11 @@
+{
+  "name": "@graph/app",
+  "version": "1.0.0",
+  "dependencies": {
+    "@graph/core": "workspace:*",
+    "@graph/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@graph/testing": "workspace:*"
+  }
+}

@@ -50,6 +50,7 @@ Output
       --max-issues             Maximum number of total issues before non-zero exit code (default: 0)
       --max-show-issues        Maximum number of issues to display per type
       --no-exit-code           Always exit with code zero (0)
+      --workspace-graph        Print a Mermaid flowchart of internal workspace dependencies and exit
 
 Troubleshooting
   -d, --debug                  Show debug output
@@ -131,6 +132,7 @@ export default function parseCLIArgs() {
       version: { type: 'boolean', short: 'V' },
       watch: { type: 'boolean', short: 'w' },
       workspace: { type: 'string', short: 'W', multiple: true },
+      'workspace-graph': { type: 'boolean' },
     },
   }).values;
 }
