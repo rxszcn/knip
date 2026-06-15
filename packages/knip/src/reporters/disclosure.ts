@@ -2,7 +2,7 @@ import type { Entries } from '../types/entries.ts';
 import type { ReporterOptions } from '../types/issues.ts';
 import { flattenIssues, getIssueTypeTitle, getTableForType } from './util/util.ts';
 
-export default ({ report, issues, cwd }: ReporterOptions) => {
+export default ({ report, issues, cwd, sort }: ReporterOptions) => {
   const reportMultipleGroups = Object.values(report).filter(Boolean).length > 1;
 
   for (const [reportType, isReportType] of Object.entries(report) as Entries<typeof report>) {
@@ -11,7 +11,7 @@ export default ({ report, issues, cwd }: ReporterOptions) => {
       const issuesForType = flattenIssues(issues[reportType]);
       if (issuesForType.length > 0) {
         console.log(`<details>\n${title ? `<summary>${title} (${issuesForType.length})</summary>\n` : ''}\n\`\`\``);
-        console.log(getTableForType(issuesForType, cwd, { isUseColors: false }).toString());
+        console.log(getTableForType(issuesForType, cwd, { isUseColors: false, sort }).toString());
         console.log('```\n\n</details>\n');
       }
     }

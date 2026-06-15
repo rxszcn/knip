@@ -5,7 +5,7 @@ import type { Issue, IssueSeverity, IssueSymbol, IssueType, Report, ReporterOpti
 import { toRelative } from '../util/path.ts';
 import { flattenIssues, getIssuePrefix, getIssueTypeTitle } from './util/util.ts';
 
-export default async ({ report, issues, cwd }: ReporterOptions) => {
+export default async ({ report, issues, cwd, sort }: ReporterOptions) => {
   const entries: codeclimate.Issue[] = [];
 
   for (const [type, isReportType] of Object.entries(report) as Entries<Report>) {
@@ -40,6 +40,19 @@ export default async ({ report, issues, cwd }: ReporterOptions) => {
         });
       }
     }
+  }
+
+  if (sort === 'severity') {
+    const severityOrder: Record<string, number> = { major: 0, minor: 1, info: 2 };
+    entries.sort(
+      (a, b) =>
+        (severityOrder[a.severity ?? 'info'] ?? 2) - (severityOrder[b.severity ?? 'info'] ?? 2) ||
+        (a.location.path ?? '').localeCompare(b.location.path ?? '')
+    );
+  } else if (sort === 'file') {
+    entries.sort((a, b) => (a.location.path ?? '').localeCompare(b.location.path ?? ''));
+  } else if (sort === 'symbol') {
+    entries.sort((a, b) => a.description.localeCompare(b.description));
   }
 
   const output = JSON.stringify(entries);

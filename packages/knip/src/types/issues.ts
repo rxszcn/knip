@@ -55,6 +55,8 @@ export type Report = {
 
 export type Counters = Record<IssueType | 'processed' | 'total', number>;
 
+export type IssueSortType = 'severity' | 'file' | 'symbol';
+
 export type ReporterOptions = {
   report: Report;
   issues: Issues;
@@ -75,6 +77,7 @@ export type ReporterOptions = {
   selectedWorkspaces: string[] | undefined;
   configFilePath: string | undefined;
   maxShowIssues?: number;
+  sort?: IssueSortType;
 };
 
 export type Reporter = (options: ReporterOptions) => void;

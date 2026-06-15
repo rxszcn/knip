@@ -4,7 +4,7 @@ import { printConfigurationHints, printTagHints } from './util/configuration-hin
 import { dim, flattenIssues, getColoredTitle, getIssueTypeTitle, getTableForType } from './util/util.ts';
 
 export default (options: ReporterOptions) => {
-  const { report, issues, isDisableConfigHints, isDisableTagHints, isShowProgress } = options;
+  const { report, issues, isDisableConfigHints, isDisableTagHints, isShowProgress, sort } = options;
   const reportMultipleGroups = Object.values(report).filter(Boolean).length > 1;
   let totalIssues = 0;
 
@@ -19,7 +19,7 @@ export default (options: ReporterOptions) => {
           typeof options.maxShowIssues === 'number'
             ? Array.from(issuesForType).slice(0, options.maxShowIssues)
             : issuesForType;
-        if (issues.length > 0) console.log(getTableForType(issues, options.cwd).toString());
+        if (issues.length > 0) console.log(getTableForType(issues, options.cwd, { sort }).toString());
         if (issues.length !== issuesForType.length)
           console.log(dim(`…${issuesForType.length - issues.length} more items`));
         totalIssues = totalIssues + issuesForType.length;

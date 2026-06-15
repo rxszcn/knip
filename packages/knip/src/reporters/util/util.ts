@@ -1,5 +1,5 @@
 import { ISSUE_TYPE_TITLE, SYMBOL_TYPE } from '../../constants.ts';
-import type { Issue, IssueRecords, IssueSeverity, IssueSymbol, IssueType } from '../../types/issues.ts';
+import type { Issue, IssueRecords, IssueSeverity, IssueSortType, IssueSymbol, IssueType } from '../../types/issues.ts';
 import st from '../../util/colors.ts';
 import { relative } from '../../util/path.ts';
 import { Table } from '../../util/table.ts';
@@ -60,11 +60,12 @@ const highlightSymbol =
 export const getTableForType = (
   issues: Issue[],
   cwd: string,
-  options: { isUseColors?: boolean } = { isUseColors: true }
+  options: { isUseColors?: boolean; sort?: IssueSortType } = { isUseColors: true }
 ) => {
   const table = new Table({ truncate: { filePath: 'start', symbolType: 'none' } });
 
-  for (const issue of issues.sort(sortByPos)) {
+  const sortFn = options.sort && sortFns[options.sort] ? sortFns[options.sort] : sortByPos;
+  for (const issue of issues.sort(sortFn)) {
     table.row();
 
     const print = options.isUseColors && (issue.isFixed || issue.severity === 'warn') ? dim : plain;
@@ -85,6 +86,20 @@ export const getTableForType = (
   }
 
   return table;
+};
+
+const severityOrder: Record<string, number> = { error: 0, warn: 1, off: 2 };
+
+const sortFns: Record<IssueSortType, (a: Issue, b: Issue) => number> = {
+  severity: (a, b) =>
+    (severityOrder[a.severity ?? 'warn'] ?? 1) - (severityOrder[b.severity ?? 'warn'] ?? 1) ||
+    a.filePath.localeCompare(b.filePath),
+  file: (a, b) => a.filePath.localeCompare(b.filePath),
+  symbol: (a, b) => a.symbol.localeCompare(b.symbol) || a.filePath.localeCompare(b.filePath),
+};
+
+export const sortIssues = (issues: Issue[], sort?: IssueSortType) => {
+  if (sort && sortFns[sort]) issues.sort(sortFns[sort]);
 };
 
 export const flattenIssues = (issues: IssueRecords): Issue[] => Object.values(issues).flatMap(Object.values);

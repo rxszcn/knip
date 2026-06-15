@@ -1,9 +1,9 @@
 import type { Entries } from '../types/entries.ts';
 import type { Issue, ReporterOptions } from '../types/issues.ts';
 import { relative } from '../util/path.ts';
-import { flattenIssues, getIssueTypeTitle } from './util/util.ts';
+import { flattenIssues, getIssueTypeTitle, sortIssues } from './util/util.ts';
 
-export default ({ report, issues, cwd }: ReporterOptions) => {
+export default ({ report, issues, cwd, sort }: ReporterOptions) => {
   console.log('# Knip report\n');
 
   const getFilePath = (issue: Issue) => {
@@ -20,15 +20,21 @@ export default ({ report, issues, cwd }: ReporterOptions) => {
 
       if (issuesForType.length > 0) {
         console.log(`## ${title} (${issuesForType.length})\n`);
-        const longestSymbol = issuesForType.sort(sortLongestSymbol)[0].symbol.length;
-        const sortedByFilePath = issuesForType.sort(sortLongestFilePath);
-        const longestFilePath = getFilePath(sortedByFilePath[0]).length;
+        const longestSymbol = [...issuesForType].sort(sortLongestSymbol)[0].symbol.length;
+        const longestFilePath = Math.max(...issuesForType.map(i => getFilePath(i).length));
+
+        if (sort) {
+          sortIssues(issuesForType, sort);
+        } else {
+          issuesForType.sort(sortLongestFilePath);
+        }
+
         const nameWidth = Math.max(longestSymbol, 'Name'.length);
         const locationWidth = Math.max(longestFilePath, 'Location'.length);
 
         console.log(`| ${'Name'.padEnd(nameWidth)} | ${'Location'.padEnd(locationWidth)} | Severity |`);
         console.log(`| :${'-'.repeat(nameWidth - 1)} | :${'-'.repeat(locationWidth - 1)} | :------- |`);
-        for (const issue of sortedByFilePath) {
+        for (const issue of issuesForType) {
           console.log(
             `| ${issue.symbol.padEnd(nameWidth)} | ${getFilePath(issue).padEnd(locationWidth)} | ${(issue.severity ?? '').padEnd(8)} |`
           );

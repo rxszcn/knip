@@ -1,13 +1,17 @@
 import type { Entries } from '../types/entries.ts';
-import type { Issue, ReporterOptions } from '../types/issues.ts';
-import { flattenIssues, getColoredTitle, getIssueLine, getIssueTypeTitle } from './util/util.ts';
+import type { IssueSortType, Issue, ReporterOptions } from '../types/issues.ts';
+import { flattenIssues, getColoredTitle, getIssueLine, getIssueTypeTitle, sortIssues } from './util/util.ts';
 
-const logIssueRecord = (issues: Issue[], cwd: string) => {
-  const sortedByFilePath = issues.sort((a, b) => (a.filePath > b.filePath ? 1 : -1));
-  for (const issue of sortedByFilePath) console.log(getIssueLine(issue, cwd));
+const logIssueRecord = (issues: Issue[], cwd: string, sort?: IssueSortType) => {
+  if (sort) {
+    sortIssues(issues, sort);
+  } else {
+    issues.sort((a, b) => (a.filePath > b.filePath ? 1 : -1));
+  }
+  for (const issue of issues) console.log(getIssueLine(issue, cwd));
 };
 
-export default ({ report, issues, isShowProgress, cwd }: ReporterOptions) => {
+export default ({ report, issues, isShowProgress, cwd, sort }: ReporterOptions) => {
   const reportMultipleGroups = Object.values(report).filter(Boolean).length > 1;
   let totalIssues = 0;
 
@@ -26,7 +30,7 @@ export default ({ report, issues, isShowProgress, cwd }: ReporterOptions) => {
 
       if (issuesForType.length > 0) {
         title && console.log(getColoredTitle(title, issuesForType.length));
-        logIssueRecord(issuesForType, cwd);
+        logIssueRecord(issuesForType, cwd, sort);
       }
 
       totalIssues = totalIssues + issuesForType.length;

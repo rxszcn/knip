@@ -1,7 +1,7 @@
 /* oxlint-disable no-console */
 import { fix } from './IssueFixer.ts';
 import { run } from './run.ts';
-import type { IssueType, ReporterOptions } from './types/issues.ts';
+import type { IssueSortType, IssueType, ReporterOptions } from './types/issues.ts';
 import parseArgs, { helpText } from './util/cli-arguments.ts';
 import { createOptions } from './util/create-options.ts';
 import {
@@ -79,6 +79,7 @@ const main = async () => {
       options: args['reporter-options'] ?? '',
       preprocessorOptions: args['preprocessor-options'] ?? '',
       selectedWorkspaces,
+      sort: args.sort as IssueSortType | undefined,
     };
 
     const finalData = await runPreprocessors(args.preprocessor ?? [], initialData);

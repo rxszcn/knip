@@ -44,7 +44,7 @@ export type JSONReport = {
   issues: Array<JSONReportEntry>;
 };
 
-export default async ({ report, issues, options, cwd }: ReporterOptions) => {
+export default async ({ report, issues, options, cwd, sort }: ReporterOptions) => {
   let opts: ExtraReporterOptions = {};
   try {
     opts = options ? JSON.parse(options) : opts;
@@ -97,6 +97,23 @@ export default async ({ report, issues, options, cwd }: ReporterOptions) => {
   }
 
   const jsonReport: JSONReport = { issues: Object.values(json) };
+
+  if (sort === 'file') {
+    jsonReport.issues.sort((a, b) => a.file.localeCompare(b.file));
+  } else if (sort === 'symbol') {
+    for (const entry of jsonReport.issues) {
+      for (const key of Object.keys(entry) as (keyof JSONReportEntry)[]) {
+        const value = entry[key];
+        if (Array.isArray(value)) {
+          value.sort((a: { name?: string }, b: { name?: string }) =>
+            (a.name ?? '').localeCompare(b.name ?? '')
+          );
+        }
+      }
+    }
+  } else if (sort === 'severity') {
+    jsonReport.issues.sort((a, b) => a.file.localeCompare(b.file));
+  }
   const output = JSON.stringify(jsonReport);
 
   // See: https://github.com/nodejs/node/issues/6379

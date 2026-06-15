@@ -47,6 +47,7 @@ Output
       --no-tag-hints           Suppress tag hints
       --treat-config-hints-as-errors   Exit with non-zero code (1) if there are any configuration hints
       --treat-tag-hints-as-errors      Exit with non-zero code (1) if there are any tag hints
+      --sort                   Sort issues by severity, file, or symbol (default: no sort)
       --max-issues             Maximum number of total issues before non-zero exit code (default: 0)
       --max-show-issues        Maximum number of issues to display per type
       --no-exit-code           Always exit with code zero (0)
@@ -119,6 +120,7 @@ export default function parseCLIArgs() {
       reporter: { type: 'string', multiple: true },
       'reporter-options': { type: 'string' },
       duration: { type: 'boolean', short: 'u' },
+      sort: { type: 'string' },
       strict: { type: 'boolean', short: 's' },
       trace: { type: 'boolean' },
       'trace-dependency': { type: 'string' },
