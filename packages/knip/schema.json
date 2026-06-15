@@ -228,8 +228,8 @@
       ]
     },
     "ignoreMembers": {
-      "title": "Enum and namespace members to exclude from the report (regex allowed)",
-      "examples": ["render", "on.*"],
+      "title": "Enum and namespace members to exclude from the report (glob and RegExp allowed)",
+      "examples": ["render", "on*"],
       "$ref": "#/definitions/list"
     },
     "issueTypes": {

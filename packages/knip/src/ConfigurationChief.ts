@@ -22,7 +22,7 @@ import { graphSequencer } from './util/graph-sequencer.ts';
 import mapWorkspaces from './util/map-workspaces.ts';
 import { join, relative } from './util/path.ts';
 import { normalizePluginConfig } from './util/plugin.ts';
-import { toRegexOrString } from './util/regex.ts';
+import { toMemberMatcher } from './util/regex.ts';
 import { ELLIPSIS } from './util/string.ts';
 import { byPathDepth } from './util/workspace.ts';
 import { createWorkspaceFilePathFilter, type WorkspaceFilePathFilter } from './util/workspace-file-filter.ts';
@@ -320,7 +320,7 @@ export class ConfigurationChief {
         const manifestPath = pkg?.manifestPath ?? join(dir, 'package.json');
         const manifestStr = pkg?.manifestStr ?? '';
         const workspaceConfig = this.getWorkspaceConfig(name);
-        const ignoreMembers = workspaceConfig.ignoreMembers?.map(toRegexOrString) ?? [];
+        const ignoreMembers = workspaceConfig.ignoreMembers?.map(toMemberMatcher) ?? [];
         return {
           name,
           pkgName,

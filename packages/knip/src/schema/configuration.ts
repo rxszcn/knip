@@ -195,13 +195,13 @@ const rootConfigurationSchema = z.object({
    */
   ignoreDependencies: z.optional(stringOrRegexSchema),
   /**
-   * Array of enum and namespace members to exclude from the report. Regular expressions
-   * allowed.
+   * Array of enum and namespace members to exclude from the report. String values are matched as
+   * glob patterns (e.g. `on*`), `RegExp` values as regular expressions.
    *
    * @example
    * ```json title="knip.json"
    * {
-   *   "ignoreMembers": ["render", "on.+"]
+   *   "ignoreMembers": ["render", "on*"]
    * }
    * ```
    *
