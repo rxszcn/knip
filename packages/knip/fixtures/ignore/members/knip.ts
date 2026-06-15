@@ -1,3 +1,3 @@
 export default {
-  ignoreMembers: ['ignored', /Left|Right/],
+  ignoreMembers: ['ignored', /Left|Right/, 'D*', '*_OLD'],
 };

@@ -195,17 +195,20 @@ const rootConfigurationSchema = z.object({
    */
   ignoreDependencies: z.optional(stringOrRegexSchema),
   /**
-   * Array of enum and namespace members to exclude from the report. Regular expressions
-   * allowed.
+   * Array of enum and namespace members to exclude from the report. Glob patterns
+   * and regular expressions are both supported.
    *
    * @example
    * ```json title="knip.json"
    * {
-   *   "ignoreMembers": ["render", "on.+"]
+   *   "ignoreMembers": ["render", "test*", "T_*", "on.+"]
    * }
    * ```
    *
-   * Actual regular expressions can be used in dynamic configurations.
+   * Glob patterns use `*` to match any sequence of characters and `?` to match a
+   * single character. Strings containing regex-specific metacharacters (`+`, `\`,
+   * `(`, `)`, `|`, `^`, `$`) are treated as regular expressions. Actual regular
+   * expressions can be used in dynamic configurations.
    */
   ignoreMembers: z.optional(stringOrRegexSchema),
   /**

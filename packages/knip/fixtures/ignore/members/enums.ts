@@ -4,3 +4,11 @@ export enum Direction {
   Left,
   Right,
 }
+
+export enum Status {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  UNKNOWN = 'unknown',
+  DEPRECATED_OLD = 'deprecated_old',
+  REMOVED_OLD = 'removed_old',
+}

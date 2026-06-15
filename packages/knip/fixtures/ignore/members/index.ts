@@ -1,5 +1,7 @@
 import { MyClass } from './MyClass';
-import { Direction } from './enums';
+import { Direction, Status } from './enums';
 
 MyClass.init();
 Direction.Up;
+Status.ACTIVE;
+Status.INACTIVE;
