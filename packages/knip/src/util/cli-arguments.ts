@@ -48,6 +48,7 @@ Output
       --treat-config-hints-as-errors   Exit with non-zero code (1) if there are any configuration hints
       --treat-tag-hints-as-errors      Exit with non-zero code (1) if there are any tag hints
       --max-issues             Maximum number of total issues before non-zero exit code (default: 0)
+      --max-warnings           Maximum number of warnings before non-zero exit code (default: ∞)
       --max-show-issues        Maximum number of issues to display per type
       --no-exit-code           Always exit with code zero (0)
 
@@ -104,6 +105,7 @@ export default function parseCLIArgs() {
       'include-entry-exports': { type: 'boolean' },
       'max-issues': { type: 'string' },
       'max-show-issues': { type: 'string' },
+      'max-warnings': { type: 'string' },
       memory: { type: 'boolean' },
       'memory-realtime': { type: 'boolean' },
       'no-config-hints': { type: 'boolean' },
