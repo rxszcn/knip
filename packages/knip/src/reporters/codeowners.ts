@@ -2,7 +2,13 @@ import type { Entries } from '../types/entries.ts';
 import type { Issue, ReporterOptions } from '../types/issues.ts';
 import { createOwnershipEngine } from '../util/codeowners.ts';
 import { relative, resolve } from '../util/path.ts';
-import { getColoredTitle, getIssueLine, getIssueTypeTitle } from './util/util.ts';
+import {
+  getColoredTitle,
+  getIssueComparator,
+  getIssueLine,
+  getIssueTypeTitle,
+  type IssueComparator,
+} from './util/util.ts';
 
 type OwnedIssue = Issue & { owner: string };
 
@@ -10,14 +16,14 @@ type ExtraReporterOptions = {
   path?: string;
 };
 
-const logIssueRecord = (issues: OwnedIssue[], cwd: string) => {
-  const sortedByFilePath = issues.sort((a, b) => (a.owner < b.owner ? -1 : 1));
-  for (const { filePath, symbols, owner, parentSymbol } of sortedByFilePath) {
+const logIssueRecord = (issues: OwnedIssue[], cwd: string, comparator?: IssueComparator) => {
+  const sorted = issues.sort(comparator ?? ((a, b) => (a.owner < b.owner ? -1 : 1)));
+  for (const { filePath, symbols, owner, parentSymbol } of sorted) {
     console.log(getIssueLine({ owner, filePath, symbols, parentSymbol }, cwd));
   }
 };
 
-export default ({ report, issues, isShowProgress, options, cwd }: ReporterOptions) => {
+export default ({ report, issues, isShowProgress, options, cwd, sort }: ReporterOptions) => {
   let opts: ExtraReporterOptions = {};
   try {
     opts = options ? JSON.parse(options) : opts;
@@ -29,6 +35,7 @@ export default ({ report, issues, isShowProgress, options, cwd }: ReporterOption
   const reportMultipleGroups = Object.values(report).filter(Boolean).length > 1;
   const [dependenciesOwner = '[no-owner]'] = findOwners('package.json');
   let totalIssues = 0;
+  const comparator = getIssueComparator(sort);
 
   const calcFileOwnership = (filePath: string) => findOwners(relative(cwd, filePath))[0] ?? dependenciesOwner;
   const addOwner = (issue: Issue) => ({
@@ -49,7 +56,7 @@ export default ({ report, issues, isShowProgress, options, cwd }: ReporterOption
       if (issuesForType.length > 0) {
         if (totalIssues) console.log();
         title && console.log(getColoredTitle(title, issuesForType.length));
-        logIssueRecord(issuesForType, cwd);
+        logIssueRecord(issuesForType, cwd, comparator);
       }
 
       totalIssues = totalIssues + issuesForType.length;

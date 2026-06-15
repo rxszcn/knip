@@ -1,7 +1,8 @@
 /* oxlint-disable no-console */
 import { fix } from './IssueFixer.ts';
+import { isIssueSortBy } from './reporters/util/util.ts';
 import { run } from './run.ts';
-import type { IssueType, ReporterOptions } from './types/issues.ts';
+import type { IssueSortBy, IssueType, ReporterOptions } from './types/issues.ts';
 import parseArgs, { helpText } from './util/cli-arguments.ts';
 import { createOptions } from './util/create-options.ts';
 import {
@@ -12,7 +13,7 @@ import {
   isLoaderError,
   isModuleNotFoundError,
 } from './util/errors.ts';
-import { logError } from './util/log.ts';
+import { logError, logWarning } from './util/log.ts';
 import { perfObserver } from './util/Performance.ts';
 import { runPreprocessors, runReporters } from './util/reporter.ts';
 import { prettyMilliseconds } from './util/string.ts';
@@ -59,6 +60,12 @@ const main = async () => {
     // These modes have their own reporting mechanism
     if (options.isWatch || options.isTrace) return;
 
+    let sort: IssueSortBy | undefined;
+    if (args.sort) {
+      if (isIssueSortBy(args.sort)) sort = args.sort;
+      else logWarning(`Ignored invalid --sort value "${args.sort}", expected one of: severity, file, symbol`);
+    }
+
     const initialData: ReporterOptions = {
       report: options.includedIssueTypes,
       issues,
@@ -76,6 +83,7 @@ const main = async () => {
       isTreatConfigHintsAsErrors: options.isTreatConfigHintsAsErrors,
       isTreatTagHintsAsErrors: options.isTreatTagHintsAsErrors,
       maxShowIssues: args['max-show-issues'] ? Number(args['max-show-issues']) : undefined,
+      sort,
       options: args['reporter-options'] ?? '',
       preprocessorOptions: args['preprocessor-options'] ?? '',
       selectedWorkspaces,

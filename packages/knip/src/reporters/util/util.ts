@@ -1,5 +1,5 @@
 import { ISSUE_TYPE_TITLE, SYMBOL_TYPE } from '../../constants.ts';
-import type { Issue, IssueRecords, IssueSeverity, IssueSymbol, IssueType } from '../../types/issues.ts';
+import type { Issue, IssueRecords, IssueSeverity, IssueSortBy, IssueSymbol, IssueType } from '../../types/issues.ts';
 import st from '../../util/colors.ts';
 import { relative } from '../../util/path.ts';
 import { Table } from '../../util/table.ts';
@@ -44,6 +44,32 @@ const sortByPos = (a: Issue, b: Issue) => {
   return (a.col ?? 0) - (b.col ?? 0);
 };
 
+export type IssueComparator = (a: Issue, b: Issue) => number;
+
+const ISSUE_SORT_VALUES: readonly IssueSortBy[] = ['severity', 'file', 'symbol'];
+
+export const isIssueSortBy = (value: string): value is IssueSortBy =>
+  (ISSUE_SORT_VALUES as readonly string[]).includes(value);
+
+const severityRank = (severity?: IssueSeverity) =>
+  severity === 'error' ? 0 : severity === 'warn' ? 1 : severity === 'off' ? 2 : 3;
+
+export const getIssueComparator = (sortBy: IssueSortBy | undefined): IssueComparator | undefined => {
+  switch (sortBy) {
+    case 'severity':
+      return (a, b) =>
+        severityRank(a.severity) - severityRank(b.severity) ||
+        a.filePath.localeCompare(b.filePath) ||
+        a.symbol.localeCompare(b.symbol);
+    case 'file':
+      return (a, b) => a.filePath.localeCompare(b.filePath) || a.symbol.localeCompare(b.symbol);
+    case 'symbol':
+      return (a, b) => a.symbol.localeCompare(b.symbol) || a.filePath.localeCompare(b.filePath);
+    default:
+      return undefined;
+  }
+};
+
 const highlightSymbol =
   (issue: Issue) =>
   (_: unknown): string => {
@@ -60,11 +86,11 @@ const highlightSymbol =
 export const getTableForType = (
   issues: Issue[],
   cwd: string,
-  options: { isUseColors?: boolean } = { isUseColors: true }
+  options: { isUseColors?: boolean; comparator?: IssueComparator } = { isUseColors: true }
 ) => {
   const table = new Table({ truncate: { filePath: 'start', symbolType: 'none' } });
 
-  for (const issue of issues.sort(sortByPos)) {
+  for (const issue of issues.sort(options.comparator ?? sortByPos)) {
     table.row();
 
     const print = options.isUseColors && (issue.isFixed || issue.severity === 'warn') ? dim : plain;

@@ -3,7 +3,7 @@ import type { Entries } from '../types/entries.ts';
 import type { ReporterOptions } from '../types/issues.ts';
 import { relative } from '../util/path.ts';
 import { hintPrinters } from './util/configuration-hints.ts';
-import { flattenIssues, getIssueTypeTitle } from './util/util.ts';
+import { flattenIssues, getIssueComparator, getIssueTypeTitle } from './util/util.ts';
 
 const createGitHubActionsLogger = () => {
   const formatAnnotation = (
@@ -71,6 +71,7 @@ export default ({
   report,
   issues,
   cwd,
+  sort,
   configurationHints,
   tagHints,
   isDisableConfigHints,
@@ -81,13 +82,14 @@ export default ({
 }: ReporterOptions) => {
   const core = createGitHubActionsLogger();
   const reportMultipleGroups = Object.values(report).filter(Boolean).length > 1;
+  const comparator = getIssueComparator(sort);
 
   for (const [reportType, isReportType] of Object.entries(report) as Entries<typeof report>) {
     if (isReportType) {
       const title = reportMultipleGroups && getIssueTypeTitle(reportType);
 
       const issuesForType = flattenIssues(issues[reportType]);
-      issuesForType.sort((a, b) => a.filePath.localeCompare(b.filePath) || (a.line ?? 0) - (b.line ?? 0));
+      issuesForType.sort(comparator ?? ((a, b) => a.filePath.localeCompare(b.filePath) || (a.line ?? 0) - (b.line ?? 0)));
       if (issuesForType.length > 0) {
         title && core.info(`${title} (${issuesForType.length})`);
 

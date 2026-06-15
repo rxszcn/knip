@@ -3,7 +3,7 @@ import type { IssueRecords, Report, ReporterOptions } from '../types/issues.ts';
 import { createOwnershipEngine } from '../util/codeowners.ts';
 import { isFile } from '../util/fs.ts';
 import { relative, resolve } from '../util/path.ts';
-import { convert, flattenIssues } from './util/util.ts';
+import { convert, flattenIssues, getIssueComparator } from './util/util.ts';
 
 type ExtraReporterOptions = {
   codeowners?: string;
@@ -44,7 +44,7 @@ export type JSONReport = {
   issues: Array<JSONReportEntry>;
 };
 
-export default async ({ report, issues, options, cwd }: ReporterOptions) => {
+export default async ({ report, issues, options, cwd, sort }: ReporterOptions) => {
   let opts: ExtraReporterOptions = {};
   try {
     opts = options ? JSON.parse(options) : opts;
@@ -55,6 +55,7 @@ export default async ({ report, issues, options, cwd }: ReporterOptions) => {
   const json: Record<string, JSONReportEntry> = {};
   const codeownersFilePath = resolve(opts.codeowners ?? '.github/CODEOWNERS');
   const findOwners = isFile(codeownersFilePath) && createOwnershipEngine(codeownersFilePath);
+  const comparator = getIssueComparator(sort);
 
   const initRow = (filePath: string) => {
     const file = relative(cwd, filePath);
@@ -82,7 +83,9 @@ export default async ({ report, issues, options, cwd }: ReporterOptions) => {
 
   for (const [type, isReportType] of Object.entries(report) as Entries<Report>) {
     if (isReportType) {
-      for (const issue of flattenIssues(issues[type] as IssueRecords)) {
+      const flat = flattenIssues(issues[type] as IssueRecords);
+      if (comparator) flat.sort(comparator);
+      for (const issue of flat) {
         const { filePath, symbol, symbols } = issue;
         json[filePath] = json[filePath] ?? initRow(filePath);
         if (type === 'duplicates') {

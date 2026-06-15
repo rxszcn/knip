@@ -1,10 +1,18 @@
 import type { Entries } from '../types/entries.ts';
 import type { ReporterOptions } from '../types/issues.ts';
 import { printConfigurationHints, printTagHints } from './util/configuration-hints.ts';
-import { dim, flattenIssues, getColoredTitle, getIssueTypeTitle, getTableForType } from './util/util.ts';
+import {
+  dim,
+  flattenIssues,
+  getColoredTitle,
+  getIssueComparator,
+  getIssueTypeTitle,
+  getTableForType,
+} from './util/util.ts';
 
 export default (options: ReporterOptions) => {
   const { report, issues, isDisableConfigHints, isDisableTagHints, isShowProgress } = options;
+  const comparator = getIssueComparator(options.sort);
   const reportMultipleGroups = Object.values(report).filter(Boolean).length > 1;
   let totalIssues = 0;
 
@@ -19,7 +27,7 @@ export default (options: ReporterOptions) => {
           typeof options.maxShowIssues === 'number'
             ? Array.from(issuesForType).slice(0, options.maxShowIssues)
             : issuesForType;
-        if (issues.length > 0) console.log(getTableForType(issues, options.cwd).toString());
+        if (issues.length > 0) console.log(getTableForType(issues, options.cwd, { isUseColors: true, comparator }).toString());
         if (issues.length !== issuesForType.length)
           console.log(dim(`…${issuesForType.length - issues.length} more items`));
         totalIssues = totalIssues + issuesForType.length;

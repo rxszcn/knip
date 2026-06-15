@@ -3,17 +3,20 @@ import type * as codeclimate from 'codeclimate-types';
 import type { Entries } from '../types/entries.ts';
 import type { Issue, IssueSeverity, IssueSymbol, IssueType, Report, ReporterOptions } from '../types/issues.ts';
 import { toRelative } from '../util/path.ts';
-import { flattenIssues, getIssuePrefix, getIssueTypeTitle } from './util/util.ts';
+import { flattenIssues, getIssueComparator, getIssuePrefix, getIssueTypeTitle } from './util/util.ts';
 
-export default async ({ report, issues, cwd }: ReporterOptions) => {
+export default async ({ report, issues, cwd, sort }: ReporterOptions) => {
   const entries: codeclimate.Issue[] = [];
+  const comparator = getIssueComparator(sort);
 
   for (const [type, isReportType] of Object.entries(report) as Entries<Report>) {
     if (!isReportType) {
       continue;
     }
 
-    for (const issue of flattenIssues(issues[type])) {
+    const flat = flattenIssues(issues[type]);
+    if (comparator) flat.sort(comparator);
+    for (const issue of flat) {
       const { filePath } = issue;
 
       if (type === 'duplicates' && issue.symbols) {
