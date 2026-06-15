@@ -5,6 +5,7 @@ import disclosure from './disclosure.ts';
 import githubActions from './github-actions.ts';
 import json from './json.ts';
 import markdown from './markdown.ts';
+import sarif from './sarif.ts';
 import symbols from './symbols.ts';
 
 export default {
@@ -16,4 +17,5 @@ export default {
   json,
   markdown,
   'github-actions': githubActions,
+  sarif,
 };
