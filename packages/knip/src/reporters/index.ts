@@ -3,6 +3,7 @@ import codeowners from './codeowners.ts';
 import compact from './compact.ts';
 import disclosure from './disclosure.ts';
 import githubActions from './github-actions.ts';
+import html from './html.ts';
 import json from './json.ts';
 import markdown from './markdown.ts';
 import symbols from './symbols.ts';
@@ -15,5 +16,6 @@ export default {
   codeclimate,
   json,
   markdown,
+  html,
   'github-actions': githubActions,
 };
