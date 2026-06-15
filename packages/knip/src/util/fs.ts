@@ -1,10 +1,10 @@
 import { existsSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile as fsWriteFile } from 'node:fs/promises';
 import { parse as parseYAMLContents } from 'yaml';
 import { parse as parseTOML } from 'smol-toml';
 import stripJsonComments from 'strip-json-comments';
 import { LoaderError } from './errors.ts';
-import { extname, join, toPosix } from './path.ts';
+import { dirname, extname, join, toPosix } from './path.ts';
 
 export const isDirectory = (cwdOrPath: string, name?: string) => {
   try {
@@ -97,4 +97,9 @@ export const tryRealpath = (filePath: string) => {
   } catch {
     return filePath;
   }
+};
+
+export const writeFile = async (filePath: string, contents: string) => {
+  await mkdir(dirname(filePath), { recursive: true });
+  await fsWriteFile(filePath, contents);
 };
