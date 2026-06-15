@@ -91,6 +91,10 @@ const main = async () => {
       .filter(reportGroup => finalData.report[reportGroup] && options.rules[reportGroup] === 'error')
       .reduce((errorCount: number, reportGroup) => errorCount + finalData.counters[reportGroup], 0);
 
+    const totalWarnCount = (Object.keys(finalData.report) as IssueType[])
+      .filter(reportGroup => finalData.report[reportGroup] && options.rules[reportGroup] === 'warn')
+      .reduce((warnCount: number, reportGroup) => warnCount + finalData.counters[reportGroup], 0);
+
     if (perfObserver.isEnabled) await perfObserver.finalize();
     if (perfObserver.isTimerifyFunctions) console.log(`\n${perfObserver.getTimerifiedFunctionsTable()}`);
     if (perfObserver.isMemoryUsageEnabled && !args['memory-realtime'])
@@ -105,6 +109,7 @@ const main = async () => {
     if (
       !args['no-exit-code'] &&
       (totalErrorCount > Number(args['max-issues'] ?? 0) ||
+        totalWarnCount > Number(args['max-warnings'] ?? 0) ||
         (!options.isDisableConfigHints && options.isTreatConfigHintsAsErrors && configurationHints.length > 0) ||
         (!options.isDisableTagHints && options.isTreatTagHintsAsErrors && tagHints.size > 0))
     ) {
