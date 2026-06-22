@@ -20,7 +20,7 @@ const isEnabled: IsPluginEnabled = ({ dependencies }) => hasDependency(dependenc
 
 const config = ['vitest.config.{js,mjs,ts,cjs,mts,cts}', 'vitest.{workspace,projects}.{js,mjs,ts,cjs,mts,cts,json}'];
 
-const mocks = ['**/__mocks__/**/*.[jt]s?(x)'];
+const mocks = ['**/__mocks__/**/*.?(c|m)[jt]s?(x)'];
 
 const entry = ['**/*.{bench,test,test-d,spec,spec-d}.?(c|m)[jt]s?(x)', ...mocks];
 
@@ -186,6 +186,8 @@ const args: Args = {
     if (parsed['ui']) inputs.push(toDependency('@vitest/ui', { optional: true }));
     if (typeof parsed['coverage'] === 'object' && parsed['coverage'].provider) {
       inputs.push(toDependency(`@vitest/coverage-${parsed['coverage'].provider}`));
+    } else if (parsed['coverage']) {
+      inputs.push(toDependency('@vitest/coverage-v8', { optional: true }));
     }
     if (parsed['reporter']) {
       for (const reporter of getExternalReporters([parsed['reporter']].flat())) {
